@@ -1,4 +1,4 @@
-package org.chatsecure.pushdemo.pushsecure.response;
+package org.chatsecure.pushsecure.pushsecure.response;
 
 /**
  * Created by davidbrodsky on 6/24/15.

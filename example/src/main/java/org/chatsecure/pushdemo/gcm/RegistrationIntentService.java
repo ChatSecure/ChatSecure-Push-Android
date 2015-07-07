@@ -28,7 +28,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
 import org.chatsecure.pushdemo.R;
-import org.chatsecure.pushdemo.pushsecure.PushSecureClient;
+import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
 
 import java.io.IOException;
 

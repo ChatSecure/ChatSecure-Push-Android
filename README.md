@@ -10,4 +10,4 @@ This is a demo [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure
 
     At the conclusion of the registration process you'll be presented with a `Server API Key` and a `google-services.json` file.
 
-3. Copy the GCM `Server API Key` to `./push/push/local_settings.py` in the ChatSecure Push Server Django project. Copy `google-services.json` to this project's `./app` directory.
+3. Copy the GCM `Server API Key` to `./push/push/local_settings.py` in the ChatSecure Push Server Django project. Copy `google-services.json` to this project's `./example` directory.

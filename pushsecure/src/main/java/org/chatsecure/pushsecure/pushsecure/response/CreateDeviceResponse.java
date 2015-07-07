@@ -1,4 +1,4 @@
-package org.chatsecure.pushdemo.pushsecure.response;
+package org.chatsecure.pushsecure.pushsecure.response;
 
 import java.util.Date;
 

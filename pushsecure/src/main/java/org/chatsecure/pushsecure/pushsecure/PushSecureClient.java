@@ -1,4 +1,4 @@
-package org.chatsecure.pushdemo.pushsecure;
+package org.chatsecure.pushsecure.pushsecure;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,11 +9,11 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.chatsecure.pushdemo.pushsecure.response.CreateAccountResponse;
-import org.chatsecure.pushdemo.pushsecure.response.CreateDeviceResponse;
-import org.chatsecure.pushdemo.pushsecure.response.CreateTokenResponse;
-import org.chatsecure.pushdemo.pushsecure.response.SendMessageResponse;
-import org.chatsecure.pushdemo.pushsecure.response.typeadapter.DjangoDateTypeAdapter;
+import org.chatsecure.pushsecure.pushsecure.response.CreateAccountResponse;
+import org.chatsecure.pushsecure.pushsecure.response.CreateDeviceResponse;
+import org.chatsecure.pushsecure.pushsecure.response.CreateTokenResponse;
+import org.chatsecure.pushsecure.pushsecure.response.SendMessageResponse;
+import org.chatsecure.pushsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter;
 
 import java.util.Date;
 
@@ -28,7 +28,7 @@ import timber.log.Timber;
  */
 public class PushSecureClient {
 
-    private PushSecureService service;
+    private PushSecureApi api;
     private String token;
     private String registrationId;
 
@@ -40,7 +40,7 @@ public class PushSecureClient {
                 .create();
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint("http://10.254.254.89:8000")//"http://192.168.1.27:8000")
+                .setEndpoint("https://chatsecure-push.herokuapp.com")//"http://192.168.1.27:8000")
                 .setConverter(new GsonConverter(gson))
                 .setRequestInterceptor(request -> {
                     if (token != null) request.addHeader("Authorization", "Token " + token);
@@ -48,7 +48,7 @@ public class PushSecureClient {
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build();
 
-        service = restAdapter.create(PushSecureService.class);
+        api = restAdapter.create(PushSecureApi.class);
 
         // Load persisted items
         SharedPreferences storage = context.getSharedPreferences("pushSecureService", Context.MODE_PRIVATE);
@@ -61,7 +61,7 @@ public class PushSecureClient {
                                                            @NonNull String username,
                                                            @NonNull String password) {
 
-        return service.createAccount(email, username, password)
+        return api.createAccount(email, username, password)
                 .doOnNext(response -> {
                     Timber.d("Created account with token ", response.token);
                     token = response.token;
@@ -72,7 +72,7 @@ public class PushSecureClient {
                                                          @NonNull String gcmRegistrationId,
                                                          @Nullable String gcmDeviceId) {
 
-        return service.createDevice(name, gcmRegistrationId, gcmDeviceId)
+        return api.createDevice(name, gcmRegistrationId, gcmDeviceId)
                 .doOnNext(createDeviceResponse -> registrationId = createDeviceResponse.registrationId);
     }
 
@@ -81,12 +81,12 @@ public class PushSecureClient {
             return Observable.error(new IllegalStateException("You must register this device" +
                     " before creating tokens. Did you call createDevice(...)?"));
 
-        return service.createToken(name, registrationId);
+        return api.createToken(name, registrationId);
     }
 
     public Observable<SendMessageResponse> sendMessage(@NonNull String recipientToken,
                                                        @Nullable String data) {
 
-        return service.sendMessage(recipientToken, data);
+        return api.sendMessage(recipientToken, data);
     }
 }

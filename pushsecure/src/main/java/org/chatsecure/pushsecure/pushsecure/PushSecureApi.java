@@ -1,12 +1,12 @@
-package org.chatsecure.pushdemo.pushsecure;
+package org.chatsecure.pushsecure.pushsecure;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.chatsecure.pushdemo.pushsecure.response.CreateAccountResponse;
-import org.chatsecure.pushdemo.pushsecure.response.CreateDeviceResponse;
-import org.chatsecure.pushdemo.pushsecure.response.CreateTokenResponse;
-import org.chatsecure.pushdemo.pushsecure.response.SendMessageResponse;
+import org.chatsecure.pushsecure.pushsecure.response.CreateAccountResponse;
+import org.chatsecure.pushsecure.pushsecure.response.CreateDeviceResponse;
+import org.chatsecure.pushsecure.pushsecure.response.CreateTokenResponse;
+import org.chatsecure.pushsecure.pushsecure.response.SendMessageResponse;
 
 import retrofit.client.Response;
 import retrofit.http.Field;
@@ -22,7 +22,7 @@ import rx.Observable;
  * <p>
  * Created by davidbrodsky on 6/23/15.
  */
-interface PushSecureService {
+interface PushSecureApi {
 
     @POST("/api/accounts/")
     @FormUrlEncoded
