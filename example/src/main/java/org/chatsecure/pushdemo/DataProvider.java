@@ -45,11 +45,11 @@ public class DataProvider {
     }
 
     public @Nullable String getPushSecureAuthToken() {
-        return sharedPrefs.getString(GCM_TOKEN, null);
+        return sharedPrefs.getString(PUSHSECURE_TOKEN, null);
     }
 
-    public void savePushSecureAuthToken(@NonNull String newToken) {
-        editor.putString(GCM_TOKEN, newToken).apply();
+    public void setPushSecureAuthToken(@NonNull String newToken) {
+        editor.putString(PUSHSECURE_TOKEN, newToken).apply();
     }
 
     public boolean didSendGcmTokenToPushSecure() {

@@ -44,7 +44,10 @@ public class Registration {
             return Observable.just(dataProvider.getPushSecureAuthToken());
 
         return callback.getChatSecurePushAccount()
-                .doOnNext(account -> dataProvider.setPushSecureUsername(account.username))
+                .doOnNext(account -> {
+                    dataProvider.setPushSecureUsername(account.username);
+                    dataProvider.setPushSecureAuthToken(account.token);
+                })
                 .map(account -> account.token);
     }
 
@@ -53,7 +56,7 @@ public class Registration {
      * and saves it to the dataprovider if it was successfully sent
      */
     private static void registerDevice(String gcmToken, DataProvider dataProvider, PushSecureClient client) {
-        if (dataProvider.getPushSecureAuthToken() == null || !dataProvider.getPushSecureAuthToken().equals(gcmToken)) {
+        if (dataProvider.getGcmToken() == null || !dataProvider.getGcmToken().equals(gcmToken)) {
             Timber.d("Registering GCM token with ChatSecure-Push");
             client.createDevice("whateverDevice", gcmToken, null)
                     .doOnNext(device -> dataProvider.setGcmToken(device.registrationId))

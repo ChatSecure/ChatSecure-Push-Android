@@ -39,10 +39,21 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
     @Bind(R.id.container)
     ViewGroup container;
 
+    private PushSecureClient client;
     private AccountRegistrationListener mListener;
+
+    public static RegistrationFragment newInstance(PushSecureClient client) {
+        RegistrationFragment frag = new RegistrationFragment();
+        frag.setPushSecureClient(client);
+        return frag;
+    }
 
     public RegistrationFragment() {
         // Required empty public constructor
+    }
+
+    public void setPushSecureClient(PushSecureClient client) {
+        this.client = client;
     }
 
     @Override
@@ -82,7 +93,8 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
 
-        PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com");
+        if (client == null) throw new IllegalStateException("PushSecureClient not set!");
+
         client.createAccount(null, username, password)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mListener::onAccountCreated,

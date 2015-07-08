@@ -15,9 +15,13 @@ limitations under the License.
  */
 package org.chatsecure.pushdemo.gcm;
 
+import android.app.NotificationManager;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmListenerService;
+
+import org.chatsecure.pushdemo.R;
 
 import timber.log.Timber;
 
@@ -27,30 +31,42 @@ import timber.log.Timber;
  */
 public class GcmService extends GcmListenerService {
 
-
     public GcmService() {}
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        sendNotification("Received: " + data.toString());
+        String messagePayload = data.getString("message");
+        Timber.d("Got push " + messagePayload);
+        postNotification(messagePayload, from);
     }
 
     @Override
     public void onDeletedMessages() {
-        sendNotification("Deleted messages on server");
+        postNotification("Deleted messages on server");
     }
 
     @Override
     public void onMessageSent(String msgId) {
-        sendNotification("Upstream message sent. Id=" + msgId);
+        postNotification("Upstream message sent. Id=" + msgId);
     }
 
     @Override
     public void onSendError(String msgId, String error) {
-        sendNotification("Upstream message send error. Id=" + msgId + ", error" + error);
+        postNotification("Upstream message send error. Id=" + msgId + ", error" + error);
     }
 
-    private void sendNotification(String msg) {
-        Timber.i(msg);
+    private void postNotification(String msg) {
+        postNotification(msg, null);
+    }
+
+    private void postNotification(String msg, String from) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+        builder.setContentTitle(msg);
+        if (from != null) builder.setContentText("From " + from);
+        builder.setVibrate(new long[]{250, 250});
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(2357, builder.build());
     }
 }

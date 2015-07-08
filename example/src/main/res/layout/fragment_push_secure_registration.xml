@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create ChatSecure-Push Account"
+        android:text="Create ChatSecure Push Account"
         android:textSize="42sp" />
 
     <android.support.design.widget.TextInputLayout

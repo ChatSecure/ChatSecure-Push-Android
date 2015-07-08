@@ -23,6 +23,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.chatsecure.pushdemo.gcm.RegistrationIntentService;
+import org.chatsecure.pushdemo.ui.fragment.MessagingFragment;
 import org.chatsecure.pushdemo.ui.fragment.RegistrationFragment;
 import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.pushsecure.response.Account;
@@ -47,12 +48,14 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
 
             dataProvider = new DataProvider(this);
 
+            PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com");
+
             Registration.register(RegistrationIntentService.refreshGcmToken(this),
-                    new PushSecureClient("https://chatsecure-push.herokuapp.com"),
+                    client,
                     dataProvider, () -> {
                         // Registration needed
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, new RegistrationFragment(), "signup")
+                                .replace(R.id.container, RegistrationFragment.newInstance(client), "signup")
                                 .commit();
 
                         newAccountObservable = PublishSubject.create();
@@ -61,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                     .subscribe(pushSecureClient -> {
                         Timber.d("Registered");
                         // Show a "Create / Share Whitelist token" Fragment
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, MessagingFragment.newInstance(pushSecureClient, dataProvider), "signup")
+                                .commit();
                     });
         }
     }
