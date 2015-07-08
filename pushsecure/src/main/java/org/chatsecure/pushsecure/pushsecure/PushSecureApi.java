@@ -3,10 +3,10 @@ package org.chatsecure.pushsecure.pushsecure;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.chatsecure.pushsecure.pushsecure.response.CreateAccountResponse;
-import org.chatsecure.pushsecure.pushsecure.response.CreateDeviceResponse;
-import org.chatsecure.pushsecure.pushsecure.response.CreateTokenResponse;
-import org.chatsecure.pushsecure.pushsecure.response.SendMessageResponse;
+import org.chatsecure.pushsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.pushsecure.response.Token;
+import org.chatsecure.pushsecure.pushsecure.response.Message;
 
 import retrofit.client.Response;
 import retrofit.http.Field;
@@ -26,25 +26,25 @@ interface PushSecureApi {
 
     @POST("/api/accounts/")
     @FormUrlEncoded
-    Observable<CreateAccountResponse> createAccount(@Nullable @Field("email") String email,
-                                                    @NonNull @Field("username") String username,
-                                                    @NonNull @Field("password") String password);
+    Observable<Account> createAccount(@Nullable @Field("email") String email,
+                                      @NonNull @Field("username") String username,
+                                      @NonNull @Field("password") String password);
 
     @POST("/api/device/gcm/")
     @FormUrlEncoded
-    Observable<CreateDeviceResponse> createDevice(@Nullable @Field("name") String name,
-                                                  @NonNull @Field("registration_id") String registrationId,
-                                                  @Nullable @Field("device_id") String deviceId);
+    Observable<Device> createDevice(@Nullable @Field("name") String name,
+                                    @NonNull @Field("registration_id") String registrationId,
+                                    @Nullable @Field("device_id") String deviceId);
 
     @POST("/api/tokens/")
     @FormUrlEncoded
-    Observable<CreateTokenResponse> createToken(@Nullable @Field("name") String name,
-                                                @Field("gcm_device") String registrationId);
+    Observable<Token> createToken(@Nullable @Field("name") String name,
+                                  @Field("gcm_device") String registrationId);
 
     @POST("/api/messages/")
     @FormUrlEncoded
-    Observable<SendMessageResponse> sendMessage(@NonNull @Field("token") String token,
-                                                @Nullable @Field("data") String data);
+    Observable<Message> sendMessage(@NonNull @Field("token") String token,
+                                    @Nullable @Field("data") String data);
 
     @GET("/api/device/gcm/")
     Observable<Response> getDevices();

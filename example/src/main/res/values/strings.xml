@@ -7,4 +7,10 @@
     <string name="token_error_message">An error occurred while either fetching the InstanceID token,
         sending the fetched token to the server or subscribing to the PubSub topic. Please try
         running the sample again.</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="create_account">Create Account</string>
+    <string name="signing_up">Signing Up...</string>
+    <string name="failed_to_create_account">Failed to create account!</string>
 </resources>

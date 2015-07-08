@@ -1,7 +1,5 @@
 package org.chatsecure.pushsecure.pushsecure;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -9,10 +7,10 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.chatsecure.pushsecure.pushsecure.response.CreateAccountResponse;
-import org.chatsecure.pushsecure.pushsecure.response.CreateDeviceResponse;
-import org.chatsecure.pushsecure.pushsecure.response.CreateTokenResponse;
-import org.chatsecure.pushsecure.pushsecure.response.SendMessageResponse;
+import org.chatsecure.pushsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.pushsecure.response.Message;
+import org.chatsecure.pushsecure.pushsecure.response.Token;
 import org.chatsecure.pushsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter;
 
 import java.util.Date;
@@ -30,9 +28,8 @@ public class PushSecureClient {
 
     private PushSecureApi api;
     private String token;
-    private String registrationId;
 
-    public PushSecureClient(@NonNull Context context) {
+    public PushSecureClient(@NonNull String apiHost) {
 
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -40,7 +37,7 @@ public class PushSecureClient {
                 .create();
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint("https://chatsecure-push.herokuapp.com")//"http://192.168.1.27:8000")
+                .setEndpoint(apiHost)
                 .setConverter(new GsonConverter(gson))
                 .setRequestInterceptor(request -> {
                     if (token != null) request.addHeader("Authorization", "Token " + token);
@@ -49,17 +46,15 @@ public class PushSecureClient {
                 .build();
 
         api = restAdapter.create(PushSecureApi.class);
-
-        // Load persisted items
-        SharedPreferences storage = context.getSharedPreferences("pushSecureService", Context.MODE_PRIVATE);
-
-        token = storage.getString("token", null);
-        registrationId = storage.getString("registrationId", null);
     }
 
-    public Observable<CreateAccountResponse> createAccount(@Nullable String email,
-                                                           @NonNull String username,
-                                                           @NonNull String password) {
+    public void setAuthenticationToken(String token) {
+        this.token = token;
+    }
+
+    public Observable<Account> createAccount(@Nullable String email,
+                                             @NonNull String username,
+                                             @NonNull String password) {
 
         return api.createAccount(email, username, password)
                 .doOnNext(response -> {
@@ -68,24 +63,19 @@ public class PushSecureClient {
                 });
     }
 
-    public Observable<CreateDeviceResponse> createDevice(@Nullable String name,
-                                                         @NonNull String gcmRegistrationId,
-                                                         @Nullable String gcmDeviceId) {
+    public Observable<Device> createDevice(@Nullable String name,
+                                           @NonNull String gcmRegistrationId,
+                                           @Nullable String gcmDeviceId) {
 
-        return api.createDevice(name, gcmRegistrationId, gcmDeviceId)
-                .doOnNext(createDeviceResponse -> registrationId = createDeviceResponse.registrationId);
+        return api.createDevice(name, gcmRegistrationId, gcmDeviceId);
     }
 
-    public Observable<CreateTokenResponse> createToken(@Nullable String name) {
-        if (registrationId == null)
-            return Observable.error(new IllegalStateException("You must register this device" +
-                    " before creating tokens. Did you call createDevice(...)?"));
-
-        return api.createToken(name, registrationId);
+    public Observable<Token> createToken(@NonNull String gcmRegistrationId, @Nullable String name) {
+        return api.createToken(name, gcmRegistrationId);
     }
 
-    public Observable<SendMessageResponse> sendMessage(@NonNull String recipientToken,
-                                                       @Nullable String data) {
+    public Observable<Message> sendMessage(@NonNull String recipientToken,
+                                           @Nullable String data) {
 
         return api.sendMessage(recipientToken, data);
     }
