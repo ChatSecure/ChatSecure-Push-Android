@@ -29,7 +29,7 @@ public class Registration {
                                                         @NonNull PushServiceRegistrationCredentialsProvider callback) {
 
         return Observable.zip(getGcmToken,
-                              getOrCreateAuthToken(dataProvider, callback).doOnNext(client::setAuthenticationToken),
+                              getOrCreateAuthToken(dataProvider, callback).doOnNext(client::setAccount),
                               (gcmToken, authToken) -> gcmToken)
                 .doOnNext(gcmToken -> registerDevice(gcmToken, dataProvider, client))
                 .map(gcmToken -> client);
@@ -39,16 +39,16 @@ public class Registration {
      * @return an observable for a ChatSecure-Push Authentication token
      * Either provided by storage or the client-provided callback
      */
-    private static Observable<String> getOrCreateAuthToken(DataProvider dataProvider, PushServiceRegistrationCredentialsProvider callback) {
-        if (dataProvider.getPushSecureAuthToken() != null)
-            return Observable.just(dataProvider.getPushSecureAuthToken());
+    private static Observable<Account> getOrCreateAuthToken(DataProvider dataProvider, PushServiceRegistrationCredentialsProvider callback) {
+        if (dataProvider.getPushSecureAuthToken() != null && dataProvider.getPushSecureUsername() != null)
+            return Observable.just(
+                    new Account(dataProvider.getPushSecureUsername(), dataProvider.getPushSecureAuthToken(), null));
 
         return callback.getChatSecurePushAccount()
                 .doOnNext(account -> {
                     dataProvider.setPushSecureUsername(account.username);
                     dataProvider.setPushSecureAuthToken(account.token);
-                })
-                .map(account -> account.token);
+                });
     }
 
     /**
@@ -74,5 +74,4 @@ public class Registration {
          */
         Observable<Account> getChatSecurePushAccount();
     }
-
 }

@@ -12,7 +12,7 @@ public class Account {
     public final @Nullable String email;
     public final @NonNull String token;
 
-    public Account(@NonNull String username, @Nullable String email, @NonNull String token) {
+    public Account(@NonNull String username, @NonNull String token, @Nullable String email) {
         this.username = username;
         this.email = email;
         this.token = token;

@@ -30,6 +30,12 @@ public class PushSecureClient {
     private String token;
 
     public PushSecureClient(@NonNull String apiHost) {
+        this(apiHost, null);
+    }
+
+    public PushSecureClient(@NonNull String apiHost, @Nullable Account account) {
+
+        if (account != null) token = account.token;
 
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -48,19 +54,15 @@ public class PushSecureClient {
         api = restAdapter.create(PushSecureApi.class);
     }
 
-    public void setAuthenticationToken(String token) {
-        this.token = token;
+    public void setAccount(@NonNull Account account) {
+        this.token = account.token;
     }
 
     public Observable<Account> createAccount(@Nullable String email,
                                              @NonNull String username,
                                              @NonNull String password) {
 
-        return api.createAccount(email, username, password)
-                .doOnNext(response -> {
-                    Timber.d("Created account with token ", response.token);
-                    token = response.token;
-                });
+        return api.createAccount(email, username, password);
     }
 
     public Observable<Device> createDevice(@Nullable String name,
