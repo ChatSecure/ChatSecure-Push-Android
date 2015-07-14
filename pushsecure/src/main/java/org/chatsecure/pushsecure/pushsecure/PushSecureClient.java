@@ -10,7 +10,7 @@ import com.google.gson.GsonBuilder;
 import org.chatsecure.pushsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.pushsecure.response.Device;
 import org.chatsecure.pushsecure.pushsecure.response.Message;
-import org.chatsecure.pushsecure.pushsecure.response.Token;
+import org.chatsecure.pushsecure.pushsecure.response.PushToken;
 import org.chatsecure.pushsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter;
 
 import java.util.Date;
@@ -18,7 +18,6 @@ import java.util.Date;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
-import timber.log.Timber;
 
 /**
  * An API client for the ChatSecure Push Server
@@ -58,11 +57,18 @@ public class PushSecureClient {
         this.token = account.token;
     }
 
-    public Observable<Account> createAccount(@Nullable String email,
-                                             @NonNull String username,
-                                             @NonNull String password) {
+    /**
+     * Authenticate an account with the given credentials, creating one if none exists.
+     *
+     * @return an {@link Account} representing the newly created or existing account matching
+     * the passed credentials. This should be passed to {@link #setAccount(Account)} before
+     * performing any other operations with this client.
+     */
+    public Observable<Account> authenticateAccount(@NonNull String username,
+                                                   @NonNull String password,
+                                                   @Nullable String email) {
 
-        return api.createAccount(email, username, password);
+        return api.authenticateAccount(username, password, email);
     }
 
     public Observable<Device> createDevice(@Nullable String name,
@@ -72,7 +78,7 @@ public class PushSecureClient {
         return api.createDevice(name, gcmRegistrationId, gcmDeviceId);
     }
 
-    public Observable<Token> createToken(@NonNull String gcmRegistrationId, @Nullable String name) {
+    public Observable<PushToken> createToken(@NonNull String gcmRegistrationId, @Nullable String name) {
         return api.createToken(name, gcmRegistrationId);
     }
 

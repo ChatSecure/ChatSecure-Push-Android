@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 /**
  * Created by davidbrodsky on 6/24/15.
  */
-public class Token {
+public class PushToken {
 
     public final @Nullable String url;
     public final @Nullable String name;
@@ -14,11 +14,11 @@ public class Token {
     public final @Nullable String apnsDevice;
     public final @Nullable String gcmDevice;
 
-    public Token(@Nullable String url,
-                 @Nullable String name,
-                 @NonNull String token,
-                 @Nullable String apnsDevice,
-                 @Nullable String gcmDevice) {
+    public PushToken(@Nullable String url,
+                     @Nullable String name,
+                     @NonNull String token,
+                     @Nullable String apnsDevice,
+                     @Nullable String gcmDevice) {
 
         this.url = url;
         this.name = name;

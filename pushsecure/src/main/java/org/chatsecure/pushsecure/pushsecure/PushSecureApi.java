@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 
 import org.chatsecure.pushsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.pushsecure.response.Device;
-import org.chatsecure.pushsecure.pushsecure.response.Token;
+import org.chatsecure.pushsecure.pushsecure.response.PushToken;
 import org.chatsecure.pushsecure.pushsecure.response.Message;
 
 import retrofit.client.Response;
@@ -26,9 +26,9 @@ interface PushSecureApi {
 
     @POST("/api/accounts/")
     @FormUrlEncoded
-    Observable<Account> createAccount(@Nullable @Field("email") String email,
-                                      @NonNull @Field("username") String username,
-                                      @NonNull @Field("password") String password);
+    Observable<Account> authenticateAccount(@NonNull @Field("username") String username,
+                                            @NonNull @Field("password") String password,
+                                            @Nullable @Field("email") String email);
 
     @POST("/api/device/gcm/")
     @FormUrlEncoded
@@ -38,8 +38,8 @@ interface PushSecureApi {
 
     @POST("/api/tokens/")
     @FormUrlEncoded
-    Observable<Token> createToken(@Nullable @Field("name") String name,
-                                  @Field("gcm_device") String registrationId);
+    Observable<PushToken> createToken(@Nullable @Field("name") String name,
+                                      @Field("gcm_device") String registrationId);
 
     @POST("/api/messages/")
     @FormUrlEncoded
