@@ -9,15 +9,19 @@ import com.google.gson.GsonBuilder;
 
 import org.chatsecure.pushsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.pushsecure.response.DeviceList;
 import org.chatsecure.pushsecure.pushsecure.response.Message;
 import org.chatsecure.pushsecure.pushsecure.response.PushToken;
 import org.chatsecure.pushsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
+import rx.functions.Func2;
 
 /**
  * An API client for the ChatSecure Push Server
@@ -86,5 +90,41 @@ public class PushSecureClient {
                                            @Nullable String data) {
 
         return api.sendMessage(recipientToken, data);
+    }
+
+    public Observable<DeviceList> getGcmDevices() {
+
+        return api.getGcmDevices();
+    }
+
+    public Observable<DeviceList> getApnsDevices() {
+
+        return api.getApnsDevices();
+    }
+
+    public Observable<List<Device>> getAllDevices() {
+        return Observable.concat(
+                getGcmDevices()
+                        .flatMap(gcmDeviceList -> Observable.from(gcmDeviceList.results))
+                        .map(gcmDevice -> new Device(gcmDevice, Device.Type.GCM)),
+                getApnsDevices()
+                        .flatMap(apnsDeviceList -> Observable.from(apnsDeviceList.results))
+                        .map(apnsDevice -> new Device(apnsDevice, Device.Type.APNS)))
+                .toList();
+    }
+
+    /**
+     * Update properties of the current device <em>excluding</em> {@link Device#registrationId}.
+     * If you need to update {@link Device#registrationId} you <em>must</em> use {@link #updateDevice(String, Device)}
+     */
+    public Observable<Device> updateDevice(@NonNull Device device) {
+        return api.updateDevice(device.registrationId, device);
+    }
+
+    /**
+     * Update the given device, including it's {@link Device#registrationId}
+     */
+    public Observable<Device> updateDevice(@NonNull String previousRegistrationId, @NonNull Device device) {
+        return api.updateDevice(previousRegistrationId, device);
     }
 }

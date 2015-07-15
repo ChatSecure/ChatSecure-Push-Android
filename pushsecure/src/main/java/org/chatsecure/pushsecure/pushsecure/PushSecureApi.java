@@ -5,14 +5,18 @@ import android.support.annotation.Nullable;
 
 import org.chatsecure.pushsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.pushsecure.response.DeviceList;
 import org.chatsecure.pushsecure.pushsecure.response.PushToken;
 import org.chatsecure.pushsecure.pushsecure.response.Message;
 
 import retrofit.client.Response;
+import retrofit.http.Body;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.PUT;
+import retrofit.http.Path;
 import rx.Observable;
 
 /**
@@ -36,6 +40,10 @@ interface PushSecureApi {
                                     @NonNull @Field("registration_id") String registrationId,
                                     @Nullable @Field("device_id") String deviceId);
 
+    @PUT("/api/device/gcm/{registrationId}")
+    Observable<Device> updateDevice(@NonNull @Path("registrationId") String registrationId,
+                                    @Body Device device);
+
     @POST("/api/tokens/")
     @FormUrlEncoded
     Observable<PushToken> createToken(@Nullable @Field("name") String name,
@@ -47,5 +55,8 @@ interface PushSecureApi {
                                     @Nullable @Field("data") String data);
 
     @GET("/api/device/gcm/")
-    Observable<Response> getDevices();
+    Observable<DeviceList> getGcmDevices();
+
+    @GET("/api/device/apns/")
+    Observable<DeviceList> getApnsDevices();
 }
