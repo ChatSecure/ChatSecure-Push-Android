@@ -95,7 +95,7 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
         if (client == null) throw new IllegalStateException("PushSecureClient not set!");
 
-        client.authenticateAccount(null, username, password)
+        client.authenticateAccount(username, password, null)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mListener::onAccountCreated,
                         throwable -> {
