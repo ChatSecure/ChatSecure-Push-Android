@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PushDemo.iml" filepath="$PROJECT_DIR$/PushDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PushSecureDemo-Android.iml" filepath="$PROJECT_DIR$/PushSecureDemo-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
       <module fileurl="file://$PROJECT_DIR$/pushsecure/pushsecure.iml" filepath="$PROJECT_DIR$/pushsecure/pushsecure.iml" />
     </modules>
