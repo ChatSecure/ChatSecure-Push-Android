@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
 
             dataProvider = new DataProvider(this);
 
-            PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com");
+            PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
 
             Registration.register(RegistrationIntentService.refreshGcmToken(this),
                     client,

@@ -19,13 +19,25 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp">
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/payloadEditText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:hint="@string/payload" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/peerTokenEditText"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
                 android:hint="@string/recipient_push_token" />
         </android.support.design.widget.TextInputLayout>
 

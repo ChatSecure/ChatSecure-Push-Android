@@ -20,6 +20,8 @@ import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import org.chatsecure.pushdemo.R;
 
@@ -35,9 +37,14 @@ public class GcmService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String messagePayload = data.getString("message");
-        Timber.d("Got push " + messagePayload);
-        postNotification(messagePayload, from);
+        Gson gson = new Gson();
+        String message = data.getString("message");
+        JsonObject payload = gson.fromJson(message, JsonObject.class);
+        payload = payload.get("message").getAsJsonObject();
+        String token = payload.get("token").getAsString();
+        String pushPayload = payload.get("data").getAsString();
+        Timber.d("Got push " + payload.get("data").getAsString());
+        postNotification(pushPayload, token);
     }
 
     @Override

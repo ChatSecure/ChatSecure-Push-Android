@@ -31,6 +31,9 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
     @Bind(R.id.sharePushTokenButton)
     Button shareTokenButton;
 
+    @Bind(R.id.payloadEditText)
+    EditText payloadEditText;
+
     @Bind(R.id.peerTokenEditText)
     EditText peerTokenEditText;
 
@@ -101,7 +104,7 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
             case R.id.sendMessageButton:
 
                 button.setEnabled(false);
-                client.sendMessage(peerTokenEditText.getText().toString(), "hello")
+                client.sendMessage(peerTokenEditText.getText().toString(), payloadEditText.getText().toString())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(message -> {
                             button.setEnabled(true);

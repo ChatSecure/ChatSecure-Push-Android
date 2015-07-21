@@ -28,35 +28,35 @@ import rx.Observable;
  */
 interface PushSecureApi {
 
-    @POST("/api/accounts/")
+    @POST("/accounts/")
     @FormUrlEncoded
     Observable<Account> authenticateAccount(@NonNull @Field("username") String username,
                                             @NonNull @Field("password") String password,
                                             @Nullable @Field("email") String email);
 
-    @POST("/api/device/gcm/")
+    @POST("/device/gcm/")
     @FormUrlEncoded
     Observable<Device> createDevice(@Nullable @Field("name") String name,
                                     @NonNull @Field("registration_id") String registrationId,
                                     @Nullable @Field("device_id") String deviceId);
 
-    @PUT("/api/device/gcm/{registrationId}")
+    @PUT("/device/gcm/{registrationId}")
     Observable<Device> updateDevice(@NonNull @Path("registrationId") String registrationId,
                                     @Body Device device);
 
-    @POST("/api/tokens/")
+    @POST("/tokens/")
     @FormUrlEncoded
     Observable<PushToken> createToken(@Nullable @Field("name") String name,
                                       @Field("gcm_device") String registrationId);
 
-    @POST("/api/messages/")
+    @POST("/messages/")
     @FormUrlEncoded
     Observable<Message> sendMessage(@NonNull @Field("token") String token,
                                     @Nullable @Field("data") String data);
 
-    @GET("/api/device/gcm/")
+    @GET("/device/gcm/")
     Observable<DeviceList> getGcmDevices();
 
-    @GET("/api/device/apns/")
+    @GET("/device/apns/")
     Observable<DeviceList> getApnsDevices();
 }

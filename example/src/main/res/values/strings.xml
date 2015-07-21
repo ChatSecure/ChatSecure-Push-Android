@@ -16,4 +16,5 @@
     <string name="send_message_info">Send a push message to the user who issued the specified push token</string>
     <string name="share_token">Share a Push Token</string>
     <string name="share_token_info">A Push Token allows someone to send you push messages</string>
+    <string name="payload">Payload</string>
 </resources>
