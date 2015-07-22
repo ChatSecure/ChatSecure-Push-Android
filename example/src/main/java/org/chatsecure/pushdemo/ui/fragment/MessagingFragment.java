@@ -17,6 +17,7 @@ import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import retrofit.RetrofitError;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
@@ -108,13 +109,18 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(message -> {
                             button.setEnabled(true);
-                            Timber.d("Sent message");
-                            Snackbar.make(container, "Sent message", Snackbar.LENGTH_SHORT)
+                            String feedbackMessage = "Sent Message";
+                            Timber.d(feedbackMessage);
+                            Snackbar.make(container, feedbackMessage, Snackbar.LENGTH_SHORT)
                                     .show();
                         }, throwable -> {
+                            String message = "Error sending message.";
+                            if (throwable instanceof RetrofitError && ((RetrofitError) throwable).getResponse().getStatus() == 404)
+                                message += " Push token may be invalid.";
+
                             button.setEnabled(true);
-                            Timber.e(throwable, "Error sending message");
-                            Snackbar.make(container, "Error sending message", Snackbar.LENGTH_SHORT)
+                            Timber.e(throwable, message);
+                            Snackbar.make(container, message, Snackbar.LENGTH_SHORT)
                                     .show();
                         });
                 break;

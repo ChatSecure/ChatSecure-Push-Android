@@ -11,6 +11,7 @@ import org.chatsecure.pushsecure.pushsecure.response.Message;
 
 import retrofit.client.Response;
 import retrofit.http.Body;
+import retrofit.http.DELETE;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
@@ -40,7 +41,7 @@ interface PushSecureApi {
                                     @NonNull @Field("registration_id") String registrationId,
                                     @Nullable @Field("device_id") String deviceId);
 
-    @PUT("/device/gcm/{registrationId}")
+    @PUT("/device/gcm/{registrationId}/")
     Observable<Device> updateDevice(@NonNull @Path("registrationId") String registrationId,
                                     @Body Device device);
 
@@ -48,6 +49,9 @@ interface PushSecureApi {
     @FormUrlEncoded
     Observable<PushToken> createToken(@Nullable @Field("name") String name,
                                       @Field("gcm_device") String registrationId);
+
+    @DELETE("/tokens/{token}/")
+    Observable<Response> deleteToken(@NonNull @Path("token") String token);
 
     @POST("/messages/")
     @FormUrlEncoded

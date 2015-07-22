@@ -16,6 +16,8 @@ limitations under the License.
 package org.chatsecure.pushdemo.gcm;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 
@@ -23,7 +25,10 @@ import com.google.android.gms.gcm.GcmListenerService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import org.chatsecure.pushdemo.MainActivity;
 import org.chatsecure.pushdemo.R;
+
+import java.util.Random;
 
 import timber.log.Timber;
 
@@ -33,7 +38,24 @@ import timber.log.Timber;
  */
 public class GcmService extends GcmListenerService {
 
-    public GcmService() {}
+    /**
+     * Intent Action
+     */
+    public static final String REVOKE_TOKEN_ACTION = "org.chatsecure.blocktoken";
+
+    /**
+     * Token Intents
+     */
+    public static final String TOKEN_EXTRA = "token";
+    public static final String NOTIFICATION_ID_EXTRA = "notId";
+
+    /**
+     * PendingIntent Request Codes
+     */
+    public static final int BLOCK_SENDER_REQUEST = 100;
+
+    public GcmService() {
+    }
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
@@ -66,14 +88,29 @@ public class GcmService extends GcmListenerService {
         postNotification(msg, null);
     }
 
-    private void postNotification(String msg, String from) {
+    private void postNotification(String msg, String fromToken) {
+        int notificationId = new Random().nextInt(Integer.MAX_VALUE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
         builder.setContentTitle(msg);
-        if (from != null) builder.setContentText("From " + from);
+        if (fromToken != null) builder.setContentText("From " + fromToken);
         builder.setVibrate(new long[]{250, 250});
         builder.setSmallIcon(R.mipmap.ic_launcher);
 
+        Intent blockIntent = new Intent(this, MainActivity.class);
+        blockIntent.setAction(REVOKE_TOKEN_ACTION);
+        blockIntent.putExtra(TOKEN_EXTRA, fromToken);
+        blockIntent.putExtra(NOTIFICATION_ID_EXTRA, notificationId);
+        blockIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent blockPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        BLOCK_SENDER_REQUEST,
+                        blockIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.addAction(R.drawable.ic_block, "Block Sender", blockPendingIntent);
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(2357, builder.build());
+        notificationManager.notify(notificationId, builder.build());
     }
 }

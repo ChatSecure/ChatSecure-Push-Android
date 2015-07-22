@@ -16,18 +16,26 @@
 
 package org.chatsecure.pushdemo;
 
+import android.app.NotificationManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.FrameLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import org.chatsecure.pushdemo.gcm.GcmService;
 import org.chatsecure.pushdemo.gcm.RegistrationIntentService;
 import org.chatsecure.pushdemo.ui.fragment.MessagingFragment;
 import org.chatsecure.pushdemo.ui.fragment.RegistrationFragment;
 import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.pushsecure.response.PushToken;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -35,6 +43,10 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+    @Bind(R.id.container)
+    FrameLayout container;
+
+    private PushSecureClient client;
     private DataProvider dataProvider;
 
     private PublishSubject<Account> newAccountObservable;
@@ -43,12 +55,13 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         if (checkPlayServices()) {
 
             dataProvider = new DataProvider(this);
 
-            PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
+            client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
 
             Registration.register(RegistrationIntentService.refreshGcmToken(this),
                     client,
@@ -69,6 +82,41 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                                 .commit();
                     });
         }
+        processIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        processIntent(intent);
+    }
+
+    private void processIntent(Intent intent) {
+        if (intent.getAction().equals(GcmService.REVOKE_TOKEN_ACTION)) {
+            handleRevokeTokenIntent(intent);
+        }
+    }
+
+    private void handleRevokeTokenIntent(Intent intent) {
+        client.deleteToken(new PushToken(intent.getStringExtra(GcmService.TOKEN_EXTRA)))
+                .subscribe(resp -> {
+                            Timber.d("Delete token http response %d", resp.getStatus());
+                            handleRevokeTokenIntentProcessed(intent);
+                        },
+                        throwable -> {
+                            Timber.e(throwable, "Failed to delete token");
+                            handleRevokeTokenIntentProcessed(intent);
+                        });
+    }
+
+    private void handleRevokeTokenIntentProcessed(Intent intent) {
+        dismissNotification(intent.getIntExtra(GcmService.NOTIFICATION_ID_EXTRA, 1));
+        Snackbar.make(container, getString(R.string.revoked_token), Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void dismissNotification(int id) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(id);
     }
 
     /**

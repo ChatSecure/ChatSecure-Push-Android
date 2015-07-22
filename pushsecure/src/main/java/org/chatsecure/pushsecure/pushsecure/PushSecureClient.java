@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import retrofit.RestAdapter;
+import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
 import rx.functions.Func2;
@@ -84,6 +85,10 @@ public class PushSecureClient {
 
     public Observable<PushToken> createToken(@NonNull String gcmRegistrationId, @Nullable String name) {
         return api.createToken(name, gcmRegistrationId);
+    }
+
+    public Observable<Response> deleteToken(@NonNull PushToken token) {
+        return api.deleteToken(token.token);
     }
 
     public Observable<Message> sendMessage(@NonNull String recipientToken,

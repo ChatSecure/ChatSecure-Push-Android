@@ -17,4 +17,5 @@
     <string name="share_token">Share a Push Token</string>
     <string name="share_token_info">A Push Token allows someone to send you push messages</string>
     <string name="payload">Payload</string>
+    <string name="revoked_token">Revoked token</string>
 </resources>

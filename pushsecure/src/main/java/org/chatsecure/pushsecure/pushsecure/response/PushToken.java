@@ -14,6 +14,10 @@ public class PushToken {
     public final @Nullable String apnsDevice;
     public final @Nullable String gcmDevice;
 
+    public PushToken(@NonNull String token) {
+        this(null, null, token, null, null);
+    }
+
     public PushToken(@Nullable String url,
                      @Nullable String name,
                      @NonNull String token,
