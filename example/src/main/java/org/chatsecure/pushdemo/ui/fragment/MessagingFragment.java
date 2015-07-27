@@ -21,6 +21,10 @@ import retrofit.RetrofitError;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
+/**
+ * UI for obtaining and sharing push tokens on behalf of the current account,
+ * as well as sending data payloads to push tokens.
+ */
 public class MessagingFragment extends Fragment implements View.OnClickListener {
 
     private PushSecureClient client;

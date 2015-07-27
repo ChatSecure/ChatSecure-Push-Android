@@ -20,10 +20,10 @@ import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AccountRegistrationListener} interface
- * to handle interaction events.
+ * Account registration UI
+ *
+ * The host {@link Activity} must implement {@link AccountRegistrationListener} to be notified
+ * of account creation.
  */
 public class RegistrationFragment extends Fragment implements View.OnClickListener {
 
