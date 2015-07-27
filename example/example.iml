@@ -109,6 +109,6 @@
     <orderEntry type="library" exported="" name="play-services-gcm-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="okio-1.4.0" level="project" />
     <orderEntry type="library" exported="" name="design-22.2.1" level="project" />
-    <orderEntry type="module" module-name="pushsecure" exported="" />
+    <orderEntry type="module" module-name="sdk" exported="" />
   </component>
 </module>

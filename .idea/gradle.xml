@@ -11,7 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/example" />
-            <option value="$PROJECT_DIR$/pushsecure" />
+            <option value="$PROJECT_DIR$/sdk" />
           </set>
         </option>
       </GradleProjectSettings>

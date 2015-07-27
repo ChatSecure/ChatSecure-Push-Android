@@ -1,1 +1,1 @@
-include ':example', ':pushsecure'
+include ':example', ':sdk'
