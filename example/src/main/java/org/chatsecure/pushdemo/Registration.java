@@ -2,8 +2,9 @@ package org.chatsecure.pushdemo;
 
 import android.support.annotation.NonNull;
 
-import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
-import org.chatsecure.pushsecure.pushsecure.response.Account;
+
+import org.chatsecure.pushsecure.PushSecureClient;
+import org.chatsecure.pushsecure.response.Account;
 
 import rx.Observable;
 import timber.log.Timber;

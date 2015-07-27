@@ -1,4 +1,4 @@
-package org.chatsecure.pushsecure.pushsecure.response.typeadapter;
+package org.chatsecure.pushsecure.response.typeadapter;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;

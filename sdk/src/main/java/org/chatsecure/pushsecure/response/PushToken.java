@@ -1,4 +1,4 @@
-package org.chatsecure.pushsecure.pushsecure.response;
+package org.chatsecure.pushsecure.response;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -29,5 +29,9 @@ public class PushToken {
         this.token = token;
         this.apnsDevice = apnsDevice;
         this.gcmDevice = gcmDevice;
+    }
+
+    public @Nullable String getDeviceIdentifier() {
+        return apnsDevice != null ? apnsDevice : gcmDevice;
     }
 }

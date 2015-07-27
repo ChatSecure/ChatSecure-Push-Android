@@ -18,4 +18,11 @@
     <string name="share_token_info">A Push Token allows someone to send you push messages</string>
     <string name="payload">Payload</string>
     <string name="revoked_token">Revoked token</string>
+    <string name="my_devices">My Devices</string>
+    <string name="my_tokens">My Tokens</string>
+    <string name="messaging">Messaging</string>
+    <string name="registration">Registration</string>
+    <string name="account_management">Account Management</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="revoke">Revoke</string>
 </resources>

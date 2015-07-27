@@ -1,11 +1,9 @@
-package org.chatsecure.pushsecure.pushsecure.response;
+package org.chatsecure.pushsecure.response;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Date;
-
-import timber.log.Timber;
 
 /**
  * Created by davidbrodsky on 6/24/15.

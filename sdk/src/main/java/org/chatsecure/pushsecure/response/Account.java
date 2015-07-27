@@ -1,4 +1,4 @@
-package org.chatsecure.pushsecure.pushsecure.response;
+package org.chatsecure.pushsecure.response;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

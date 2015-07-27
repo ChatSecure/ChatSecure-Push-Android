@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import org.chatsecure.pushdemo.R;
-import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
-import org.chatsecure.pushsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.PushSecureClient;
+import org.chatsecure.pushsecure.response.Account;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

@@ -29,12 +29,17 @@ dependencies {
 
     compile project(':sdk')
 
+    // Android support libraries
     compile 'com.android.support:design:22.2.1'
     compile 'com.android.support:support-v4:22.2.1'
     compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
+    compile 'com.android.support:cardview-v7:22.2.1'
 
+    // Google Cloud Messaging
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
 
+    // 3rd party
     compile 'com.jakewharton.timber:timber:3.1.0'
     compile 'com.jakewharton:butterknife:7.0.1'
 }

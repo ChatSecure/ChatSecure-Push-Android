@@ -1,13 +1,14 @@
-package org.chatsecure.pushsecure.pushsecure;
+package org.chatsecure.pushsecure;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.chatsecure.pushsecure.pushsecure.response.Account;
-import org.chatsecure.pushsecure.pushsecure.response.Device;
-import org.chatsecure.pushsecure.pushsecure.response.DeviceList;
-import org.chatsecure.pushsecure.pushsecure.response.PushToken;
-import org.chatsecure.pushsecure.pushsecure.response.Message;
+import org.chatsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.response.DeviceList;
+import org.chatsecure.pushsecure.response.Message;
+import org.chatsecure.pushsecure.response.PushToken;
+import org.chatsecure.pushsecure.response.TokenList;
 
 import retrofit.client.Response;
 import retrofit.http.Body;
@@ -49,6 +50,9 @@ interface PushSecureApi {
     @FormUrlEncoded
     Observable<PushToken> createToken(@Nullable @Field("name") String name,
                                       @Field("gcm_device") String registrationId);
+
+    @GET("/tokens/")
+    Observable<TokenList> getTokens();
 
     @DELETE("/tokens/{token}/")
     Observable<Response> deleteToken(@NonNull @Path("token") String token);

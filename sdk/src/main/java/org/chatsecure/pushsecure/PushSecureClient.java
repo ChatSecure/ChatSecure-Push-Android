@@ -1,4 +1,4 @@
-package org.chatsecure.pushsecure.pushsecure;
+package org.chatsecure.pushsecure;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,14 +7,13 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import org.chatsecure.pushsecure.pushsecure.response.Account;
-import org.chatsecure.pushsecure.pushsecure.response.Device;
-import org.chatsecure.pushsecure.pushsecure.response.DeviceList;
-import org.chatsecure.pushsecure.pushsecure.response.Message;
-import org.chatsecure.pushsecure.pushsecure.response.PushToken;
-import org.chatsecure.pushsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter;
+import org.chatsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.response.DeviceList;
+import org.chatsecure.pushsecure.response.Message;
+import org.chatsecure.pushsecure.response.PushToken;
+import org.chatsecure.pushsecure.response.TokenList;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,7 +21,6 @@ import retrofit.RestAdapter;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 import rx.Observable;
-import rx.functions.Func2;
 
 /**
  * An API client for the ChatSecure Push Server
@@ -43,7 +41,7 @@ public class PushSecureClient {
 
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .registerTypeAdapter(Date.class, new DjangoDateTypeAdapter())
+                .registerTypeAdapter(Date.class, new org.chatsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter())
                 .create();
 
         RestAdapter restAdapter = new RestAdapter.Builder()
@@ -89,6 +87,10 @@ public class PushSecureClient {
 
     public Observable<Response> deleteToken(@NonNull PushToken token) {
         return api.deleteToken(token.token);
+    }
+
+    public Observable<TokenList> getTokens() {
+        return api.getTokens();
     }
 
     public Observable<Message> sendMessage(@NonNull String recipientToken,

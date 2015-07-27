@@ -59,4 +59,10 @@ public class DataProvider {
     public void setDidSendGcmTokenToPushSecure(boolean didSend) {
         editor.putBoolean(SENT_GCM_TOKEN_TO_SERVER, didSend).apply();
     }
+
+    public void clearPushSecureAccount() {
+        editor.remove(PUSHSECURE_UNAME)
+              .remove(PUSHSECURE_TOKEN)
+              .apply();
+    }
 }

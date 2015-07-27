@@ -19,34 +19,61 @@ package org.chatsecure.pushdemo;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.chatsecure.pushdemo.gcm.GcmService;
 import org.chatsecure.pushdemo.gcm.RegistrationIntentService;
+import org.chatsecure.pushdemo.ui.fragment.DevicesFragment;
 import org.chatsecure.pushdemo.ui.fragment.MessagingFragment;
 import org.chatsecure.pushdemo.ui.fragment.RegistrationFragment;
-import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
-import org.chatsecure.pushsecure.pushsecure.response.Account;
-import org.chatsecure.pushsecure.pushsecure.response.PushToken;
+import org.chatsecure.pushdemo.ui.fragment.TokensFragment;
+import org.chatsecure.pushsecure.PushSecureClient;
+import org.chatsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.response.PushToken;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements RegistrationFragment.AccountRegistrationListener {
+public class MainActivity extends AppCompatActivity implements RegistrationFragment.AccountRegistrationListener, NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+
+    @Bind(R.id.drawer)
+    DrawerLayout drawer;
+
+    @Bind(R.id.navigation)
+    NavigationView navigation;
 
     @Bind(R.id.container)
     FrameLayout container;
 
-    private PushSecureClient client;
+    @Bind(R.id.nameTextView)
+    TextView name;
+
+    @Bind(R.id.signOutButton)
+    Button signOut;
+
+    private org.chatsecure.pushsecure.PushSecureClient client;
     private DataProvider dataProvider;
 
     private PublishSubject<Account> newAccountObservable;
@@ -57,32 +84,39 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        setSupportActionBar(toolbar);
+        final ActionBar actionBar = getSupportActionBar();
+
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        navigation.setNavigationItemSelectedListener(this);
+
+        signOut.setOnClickListener(this);
+
         if (checkPlayServices()) {
 
             dataProvider = new DataProvider(this);
 
             client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
 
-            Registration.register(RegistrationIntentService.refreshGcmToken(this),
-                    client,
-                    dataProvider, () -> {
-                        // Registration needed
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, RegistrationFragment.newInstance(client), "signup")
-                                .commit();
-
-                        newAccountObservable = PublishSubject.create();
-                        return newAccountObservable;
-                    })
-                    .subscribe(pushSecureClient -> {
-                        Timber.d("Registered");
-                        // Show a "Create / Share Whitelist token" Fragment
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, MessagingFragment.newInstance(pushSecureClient, dataProvider), "signup")
-                                .commit();
-                    });
+            register();
         }
         processIntent(getIntent());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawer.openDrawer(GravityCompat.START);
+                return true;
+
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -95,6 +129,14 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
         if (intent.getAction().equals(GcmService.REVOKE_TOKEN_ACTION)) {
             handleRevokeTokenIntent(intent);
         }
+    }
+
+    private void setContentFragment(Fragment fragment, int titleResId) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, fragment, null)
+                .commit();
+
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(titleResId);
     }
 
     private void handleRevokeTokenIntent(Intent intent) {
@@ -117,6 +159,28 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     private void dismissNotification(int id) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.cancel(id);
+    }
+
+    private void register() {
+        Registration.register(RegistrationIntentService.refreshGcmToken(this),
+                client,
+                dataProvider, () -> {
+                    // Registration needed
+                    if (getSupportActionBar() != null) getSupportActionBar().hide();
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    setContentFragment(RegistrationFragment.newInstance(client), R.string.registration);
+
+                    newAccountObservable = PublishSubject.create();
+                    return newAccountObservable;
+                })
+                .subscribe(pushSecureClient -> {
+                    Timber.d("Registered");
+                    if (getSupportActionBar() != null) getSupportActionBar().show();
+                    name.setText(dataProvider.getPushSecureUsername());
+                    drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    // Show a "Create / Share Whitelist token" Fragment
+                    setContentFragment(MessagingFragment.newInstance(pushSecureClient, dataProvider), R.string.messaging);
+                });
     }
 
     /**
@@ -153,5 +217,37 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
             newAccountObservable.onCompleted();
         }
 
+    }
+
+    /** Navigation drawer item selection */
+    @Override
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+        switch (menuItem.getItemId()) {
+            case R.id.my_tokens:
+                setContentFragment(TokensFragment.newInstance(client, dataProvider), R.string.my_tokens);
+                break;
+
+            case R.id.my_devices:
+                setContentFragment(DevicesFragment.newInstance(client, dataProvider), R.string.my_devices);
+                break;
+
+            case R.id.messaging:
+                setContentFragment(MessagingFragment.newInstance(client, dataProvider), R.string.messaging);
+                break;
+        }
+
+        menuItem.setChecked(true);
+        drawer.closeDrawers();
+        return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.equals(signOut)) {
+            dataProvider.clearPushSecureAccount();
+            register();
+            drawer.closeDrawers();
+        }
     }
 }
