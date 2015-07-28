@@ -61,6 +61,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         String name = device.name != null ? device.name : "Untitled device";
         viewHolder.name.setText(name + String.format(" (%s)", device.type));
         viewHolder.createdDate.setText("Created " + sdf.format(device.dateCreated));
+        viewHolder.revoke.setTag(device);
 
         if (thisRegistrationId != null && thisRegistrationId.equals(device.registrationId)) {
             viewHolder.name.setTypeface(viewHolder.name.getTypeface(), Typeface.BOLD);
