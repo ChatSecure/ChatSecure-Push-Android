@@ -31,8 +31,9 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
 
     private PushSecureClient client;
     private DataProvider provider;
-
     private TokenAdapter adapter;
+
+    private RecyclerView recyclerView;
 
     public static TokensFragment newInstance(PushSecureClient client, DataProvider provider) {
         TokensFragment fragment = new TokensFragment();
@@ -62,12 +63,12 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        RecyclerView root = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
+        recyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
         adapter = new TokenAdapter(this);
-        root.setLayoutManager(new LinearLayoutManager(getActivity()));
-        root.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
         displayTokens();
-        return root;
+        return recyclerView;
     }
 
     private void displayTokens() {
@@ -89,7 +90,7 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
                         throwable -> {
                             String message = "Failed to delete token";
                             Timber.e(throwable, message);
-                            Snackbar.make(null, message, Snackbar.LENGTH_SHORT)
+                            Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
                                     .show();
                         });
     }

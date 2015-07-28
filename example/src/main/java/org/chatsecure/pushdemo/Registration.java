@@ -58,10 +58,10 @@ public class Registration {
      * and saves it to the dataprovider if it was successfully sent
      */
     private static void registerDevice(String gcmToken, DataProvider dataProvider, PushSecureClient client) {
-        if (dataProvider.getGcmToken() == null || !dataProvider.getGcmToken().equals(gcmToken)) {
+        if (dataProvider.getDevice() == null || !dataProvider.getDevice().registrationId.equals(gcmToken)) {
             Timber.d("Registering GCM token with ChatSecure-Push");
             client.createDevice("whateverDevice", gcmToken, null)
-                    .doOnNext(device -> dataProvider.setGcmToken(device.registrationId))
+                    .doOnNext(dataProvider::setDevice)
                     .toBlocking()
                     .single();
         } else {

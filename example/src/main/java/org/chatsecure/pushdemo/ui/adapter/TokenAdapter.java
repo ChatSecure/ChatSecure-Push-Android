@@ -53,6 +53,8 @@ public class TokenAdapter extends RecyclerView.Adapter<TokenAdapter.ViewHolder> 
         viewHolder.device.setText("Device: " + token.getDeviceIdentifier());
 
         viewHolder.revoke.setTag(token);
+        viewHolder.revoke.setText(R.string.revoke);
+
     }
 
     @Override

@@ -25,4 +25,5 @@
     <string name="account_management">Account Management</string>
     <string name="sign_out">Sign Out</string>
     <string name="revoke">Revoke</string>
+    <string name="revoking">Revoking...</string>
 </resources>

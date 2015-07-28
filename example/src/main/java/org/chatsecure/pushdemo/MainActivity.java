@@ -48,6 +48,7 @@ import org.chatsecure.pushsecure.response.PushToken;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
@@ -173,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                     newAccountObservable = PublishSubject.create();
                     return newAccountObservable;
                 })
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(pushSecureClient -> {
                     Timber.d("Registered");
                     if (getSupportActionBar() != null) getSupportActionBar().show();
@@ -245,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     @Override
     public void onClick(View v) {
         if (v.equals(signOut)) {
-            dataProvider.clearPushSecureAccount();
+            dataProvider.clear();
             register();
             drawer.closeDrawers();
         }

@@ -26,11 +26,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
     private SimpleDateFormat sdf = new SimpleDateFormat("EE M/d/yyyy h:mm a", Locale.US);
     private Listener listener;
-    private String thisRegistrationId;
+    private Device thisDevice;
 
-    public DeviceAdapter(String thisRegistionId, Listener listener) {
+    public DeviceAdapter(Device thisDevice, Listener listener) {
         this(listener);
-        this.thisRegistrationId = thisRegistionId;
+        this.thisDevice = thisDevice;
     }
 
     public DeviceAdapter(Listener listener) {
@@ -62,8 +62,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         viewHolder.name.setText(name + String.format(" (%s)", device.type));
         viewHolder.createdDate.setText("Created " + sdf.format(device.dateCreated));
         viewHolder.revoke.setTag(device);
+        viewHolder.revoke.setText(R.string.revoke);
 
-        if (thisRegistrationId != null && thisRegistrationId.equals(device.registrationId)) {
+        if (thisDevice != null && thisDevice.id.equals(device.id)) {
             viewHolder.name.setTypeface(viewHolder.name.getTypeface(), Typeface.BOLD);
         } else {
             viewHolder.name.setTypeface(viewHolder.name.getTypeface(), Typeface.NORMAL);
@@ -92,7 +93,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
             revoke.setOnClickListener(v -> {
                 v.setEnabled(false);
-                ((Button) v).setText("Revoking...");
+                ((Button) v).setText(R.string.revoking);
                 listener.onRevokeDeviceRequested((Device) v.getTag());
             });
         }

@@ -3,18 +3,11 @@ package org.chatsecure.pushdemo.ui.fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.chatsecure.pushdemo.DataProvider;
 import org.chatsecure.pushdemo.R;
@@ -22,8 +15,6 @@ import org.chatsecure.pushdemo.ui.adapter.DeviceAdapter;
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Device;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
@@ -34,8 +25,9 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
 
     private PushSecureClient client;
     private DataProvider provider;
-
     private DeviceAdapter adapter;
+
+    private RecyclerView recyclerView;
 
     public static DevicesFragment newInstance(PushSecureClient client, DataProvider provider) {
         DevicesFragment fragment = new DevicesFragment();
@@ -65,12 +57,12 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        RecyclerView root = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
-        adapter = new DeviceAdapter(provider.getGcmToken(), this);
-        root.setLayoutManager(new LinearLayoutManager(getActivity()));
-        root.setAdapter(adapter);
+        recyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
+        adapter = new DeviceAdapter(provider.getDevice(), this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
         displayDevices();
-        return root;
+        return recyclerView;
     }
 
     private void displayDevices() {
@@ -81,7 +73,7 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
 
     @Override
     public void onRevokeDeviceRequested(Device device) {
-        client.deleteDevice(device.registrationId)
+        client.deleteDevice(device.id)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(resp -> {
                             Timber.d("Delete token http response %d", resp.getStatus());
@@ -90,7 +82,7 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
                         throwable -> {
                             String message = "Failed to delete token";
                             Timber.e(throwable, message);
-                            Snackbar.make(null, message, Snackbar.LENGTH_SHORT)
+                            Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
                                     .show();
                         });
     }

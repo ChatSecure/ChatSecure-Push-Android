@@ -5,9 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +88,7 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
             case R.id.sharePushTokenButton:
 
                 button.setEnabled(false);
-                client.createToken(provider.getGcmToken(), null)
+                client.createToken(provider.getDevice(), null)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(newToken -> {
                             button.setEnabled(true);
