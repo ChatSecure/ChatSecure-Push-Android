@@ -129,9 +129,13 @@ public class PushSecureClient {
     }
 
     /**
-     * Update the given device, including it's {@link Device#registrationId}
+     * Update the given device, including its {@link Device#registrationId}
      */
     public Observable<Device> updateDevice(@NonNull String previousRegistrationId, @NonNull Device device) {
         return api.updateDevice(previousRegistrationId, device);
+    }
+
+    public Observable<Response> deleteDevice(@NonNull String registrationId) {
+        return api.deleteDevice(registrationId);
     }
 }

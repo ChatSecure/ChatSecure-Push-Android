@@ -1,5 +1,6 @@
 package org.chatsecure.pushdemo.ui.adapter;
 
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +22,16 @@ import java.util.Locale;
  */
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("EE M/d/yyyy h:mm a", Locale.US);
-
     public List<Device> devices = new ArrayList<>();
 
+    private SimpleDateFormat sdf = new SimpleDateFormat("EE M/d/yyyy h:mm a", Locale.US);
     private Listener listener;
+    private String thisRegistrationId;
+
+    public DeviceAdapter(String thisRegistionId, Listener listener) {
+        this(listener);
+        this.thisRegistrationId = thisRegistionId;
+    }
 
     public DeviceAdapter(Listener listener) {
         this.listener = listener;
@@ -52,8 +58,16 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         Device device = devices.get(position);
 
-        viewHolder.name.setText(device.name != null ? device.name : "Untitled device");
+        String name = device.name != null ? device.name : "Untitled device";
+        viewHolder.name.setText(name + String.format(" (%s)", device.type));
         viewHolder.createdDate.setText("Created " + sdf.format(device.dateCreated));
+
+        if (thisRegistrationId != null && thisRegistrationId.equals(device.registrationId)) {
+            viewHolder.name.setTypeface(viewHolder.name.getTypeface(), Typeface.BOLD);
+        } else {
+            viewHolder.name.setTypeface(viewHolder.name.getTypeface(), Typeface.NORMAL);
+        }
+
     }
 
     @Override

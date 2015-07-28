@@ -66,7 +66,7 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         RecyclerView root = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
-        adapter = new DeviceAdapter(this);
+        adapter = new DeviceAdapter(provider.getGcmToken(), this);
         root.setLayoutManager(new LinearLayoutManager(getActivity()));
         root.setAdapter(adapter);
         displayDevices();
@@ -81,7 +81,17 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
 
     @Override
     public void onRevokeDeviceRequested(Device device) {
-        // TODO
-        Toast.makeText(getActivity(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+        client.deleteDevice(device.registrationId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(resp -> {
+                            Timber.d("Delete token http response %d", resp.getStatus());
+                            adapter.removeDevice(device);
+                        },
+                        throwable -> {
+                            String message = "Failed to delete token";
+                            Timber.e(throwable, message);
+                            Snackbar.make(null, message, Snackbar.LENGTH_SHORT)
+                                    .show();
+                        });
     }
 }

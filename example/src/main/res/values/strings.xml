@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PushDemo</string>
+    <string name="app_name">ChatSecure-Push Example</string>
 
     <string name="gcm_send_message">Token retrieved and sent to server! You can now use gcmsender to
         send downstream messages to this app.</string>

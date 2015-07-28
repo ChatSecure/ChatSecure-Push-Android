@@ -46,6 +46,9 @@ interface PushSecureApi {
     Observable<Device> updateDevice(@NonNull @Path("registrationId") String registrationId,
                                     @Body Device device);
 
+    @DELETE("/device/gcm/{registrationId}/")
+    Observable<Response> deleteDevice(@NonNull @Path("registrationId") String registrationId);
+
     @POST("/tokens/")
     @FormUrlEncoded
     Observable<PushToken> createToken(@Nullable @Field("name") String name,
