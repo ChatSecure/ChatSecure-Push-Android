@@ -42,17 +42,17 @@ interface PushSecureApi {
                                     @NonNull @Field("registration_id") String registrationId,
                                     @Nullable @Field("device_id") String deviceId);
 
-    @PUT("/device/gcm/{registrationId}/")
-    Observable<Device> updateDevice(@NonNull @Path("registrationId") String registrationId,
+    @PUT("/device/gcm/{id}/")
+    Observable<Device> updateDevice(@NonNull @Path("id") String id,
                                     @Body Device device);
 
-    @DELETE("/device/gcm/{registrationId}/")
-    Observable<Response> deleteDevice(@NonNull @Path("registrationId") String registrationId);
+    @DELETE("/device/gcm/{id}/")
+    Observable<Response> deleteDevice(@NonNull @Path("id") String id);
 
     @POST("/tokens/")
     @FormUrlEncoded
     Observable<PushToken> createToken(@Nullable @Field("name") String name,
-                                      @Field("gcm_device") String registrationId);
+                                      @Field("gcm_device") String id);
 
     @GET("/tokens/")
     Observable<TokenList> getTokens();

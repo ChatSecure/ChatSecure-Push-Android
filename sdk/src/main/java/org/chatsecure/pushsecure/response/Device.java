@@ -14,6 +14,7 @@ public class Device {
 
     public final @Nullable String name;
     public final @NonNull String registrationId;
+    public final @NonNull String id;
     public final @Nullable String deviceId;
     public final boolean active;
     public final @NonNull Date dateCreated;
@@ -24,21 +25,23 @@ public class Device {
     public Device(@NonNull Device device,
                   @NonNull Type type) {
 
-        this(device.name, device.registrationId, device.deviceId, device.active, device.dateCreated, type);
+        this(device.name, device.registrationId, device.deviceId, device.id, device.active, device.dateCreated, type);
     }
 
     public Device(@Nullable String name,
                   @NonNull String registrationId,
                   @Nullable String deviceId,
+                  @NonNull String id,
                   boolean active,
                   @NonNull Date dateCreated) {
 
-        this(name, registrationId, deviceId, active, dateCreated, Type.UNKNOWN);
+        this(name, registrationId, deviceId, id, active, dateCreated, Type.UNKNOWN);
     }
 
     public Device(@Nullable String name,
                   @NonNull String registrationId,
                   @Nullable String deviceId,
+                  @NonNull String id,
                   boolean active,
                   @NonNull Date dateCreated,
                   @NonNull Type type) {
@@ -46,6 +49,7 @@ public class Device {
         this.name = name;
         this.registrationId = registrationId;
         this.deviceId = deviceId;
+        this.id = id;
         this.active = active;
         this.dateCreated = dateCreated;
         this.type = type;

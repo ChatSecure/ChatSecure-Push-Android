@@ -8,13 +8,23 @@ import android.support.annotation.Nullable;
  */
 public class Account {
 
+    private static final String NO_ID = "NO_ID";
+
     public final @NonNull String username;
-    public final @Nullable String email;
     public final @NonNull String token;
+    public final @NonNull String id;
+    public final @Nullable String email;
 
     public Account(@NonNull String username, @NonNull String token, @Nullable String email) {
+        this(username, token, NO_ID, email);
+    }
+
+
+    public Account(@NonNull String username, @NonNull String token, @NonNull String id, @Nullable String email) {
         this.username = username;
-        this.email = email;
         this.token = token;
+        this.id = id;
+
+        this.email = email;
     }
 }

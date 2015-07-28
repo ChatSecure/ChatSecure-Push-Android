@@ -81,8 +81,8 @@ public class PushSecureClient {
         return api.createDevice(name, gcmRegistrationId, gcmDeviceId);
     }
 
-    public Observable<PushToken> createToken(@NonNull String gcmRegistrationId, @Nullable String name) {
-        return api.createToken(name, gcmRegistrationId);
+    public Observable<PushToken> createToken(@NonNull Device device, @Nullable String name) {
+        return api.createToken(name, device.id);
     }
 
     public Observable<Response> deleteToken(@NonNull PushToken token) {
@@ -121,21 +121,14 @@ public class PushSecureClient {
     }
 
     /**
-     * Update properties of the current device <em>excluding</em> {@link Device#registrationId}.
-     * If you need to update {@link Device#registrationId} you <em>must</em> use {@link #updateDevice(String, Device)}
+     * Update properties of the current device. Note that changes to {@link Device#id} will
+     * not be respected
      */
     public Observable<Device> updateDevice(@NonNull Device device) {
-        return api.updateDevice(device.registrationId, device);
+        return api.updateDevice(device.id, device);
     }
 
-    /**
-     * Update the given device, including its {@link Device#registrationId}
-     */
-    public Observable<Device> updateDevice(@NonNull String previousRegistrationId, @NonNull Device device) {
-        return api.updateDevice(previousRegistrationId, device);
-    }
-
-    public Observable<Response> deleteDevice(@NonNull String registrationId) {
-        return api.deleteDevice(registrationId);
+    public Observable<Response> deleteDevice(@NonNull String id) {
+        return api.deleteDevice(id);
     }
 }
