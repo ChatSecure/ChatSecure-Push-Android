@@ -3,7 +3,9 @@ package org.chatsecure.pushdemo.ui.fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,19 +18,28 @@ import org.chatsecure.pushsecure.response.Account;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.android.app.AppObservable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.android.widget.WidgetObservable;
 import timber.log.Timber;
 
 /**
  * Account registration UI
- *
+ * <p>
  * The host {@link Activity} must implement {@link AccountRegistrationListener} to be notified
  * of account creation.
  */
 public class RegistrationFragment extends Fragment implements View.OnClickListener {
 
+    @Bind(R.id.usernameLayout)
+    TextInputLayout usernameLayout;
+
     @Bind(R.id.username)
     EditText usernameEditText;
+
+    @Bind(R.id.passwordLayout)
+    TextInputLayout passwordLayout;
 
     @Bind(R.id.password)
     EditText passwordEditText;
@@ -62,6 +73,25 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_push_secure_registration, container, false);
         ButterKnife.bind(this, root);
+
+        AppObservable.bindFragment(this,
+                Observable.merge(WidgetObservable.text(usernameEditText),
+                        WidgetObservable.text(passwordEditText)))
+
+                .distinctUntilChanged(textChangedEvent ->
+                        usernameEditText.getText().hashCode() ^
+                                passwordEditText.getText().hashCode())
+
+                .subscribe(onTextChangeEvent -> {
+                    signupButton.setVisibility(checkUserPasswordEntry(false) ? View.VISIBLE : View.INVISIBLE);
+                });
+
+        passwordEditText.setOnEditorActionListener((view, actionId, event) -> {
+            if (checkUserPasswordEntry(true)) {
+                onClick(null);
+            }
+            return false;
+        });
 
         signupButton.setOnClickListener(this);
         return root;
@@ -105,6 +135,23 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
                             Snackbar.make(container, R.string.failed_to_create_account, Snackbar.LENGTH_LONG)
                                     .show();
                         });
+    }
+
+    private boolean checkUserPasswordEntry(boolean showError) {
+        boolean usernameValid = !TextUtils.isEmpty(usernameEditText.getText());
+        boolean passwordValid = !TextUtils.isEmpty(passwordEditText.getText());
+
+        if (showError) {
+            usernameLayout.setError(usernameValid ? null : "Enter a username");
+            passwordLayout.setError(passwordValid ? null : "Enter a password");
+        } else {
+            // Even if error show not requested, we should always clear errors
+            // that are no longer valid
+            if (usernameValid) usernameLayout.setError(null);
+            if (passwordValid) passwordLayout.setError(null);
+        }
+
+        return usernameValid && passwordValid;
     }
 
     private void setEntryViewsEnabled(boolean isEnabled) {

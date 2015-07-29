@@ -1,48 +1,58 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
+    android:id="@id/container"
+    android:layout_width="300dp"
     android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context="org.chatsecure.pushdemo.ui.fragment.RegistrationFragment">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create ChatSecure Push Account"
+        android:layout_marginBottom="16dp"
+        android:text="@string/create_chatsecure_push_account"
         android:textSize="42sp" />
 
     <android.support.design.widget.TextInputLayout
-        android:layout_width="300dp"
-        android:layout_height="wrap_content">
+        android:id="@+id/usernameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:errorEnabled="true">
 
         <EditText
             android:id="@+id/username"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="Username" />
+            android:hint="@string/username"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
-        android:layout_width="300dp"
-        android:layout_height="wrap_content">
+        android:id="@+id/passwordLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:errorEnabled="true">
 
         <EditText
             android:id="@+id/password"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:inputType="textPassword" />
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
     <Button
         android:id="@+id/createAccountButton"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginTop="16dp"
         android:text="@string/create_account"
-        android:textSize="22sp" />
+        android:textSize="22sp"
+        android:visibility="invisible" />
 
 </LinearLayout>

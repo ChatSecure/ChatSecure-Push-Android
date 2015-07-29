@@ -25,5 +25,8 @@
     <string name="account_management">Account Management</string>
     <string name="sign_out">Sign Out</string>
     <string name="revoke">Revoke</string>
-    <string name="revoking">Revoking...</string>
+    <string name="revoking">Revoking…</string>
+    <string name="create_chatsecure_push_account">Create ChatSecure Push Account</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
 </resources>
