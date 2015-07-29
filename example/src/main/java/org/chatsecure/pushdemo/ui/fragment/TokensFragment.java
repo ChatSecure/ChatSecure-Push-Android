@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.chatsecure.pushdemo.DataProvider;
@@ -33,7 +34,14 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
     private DataProvider provider;
     private TokenAdapter adapter;
 
-    private RecyclerView recyclerView;
+    @Bind(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    @Bind(R.id.progressBar)
+    ProgressBar progressIndicator;
+
+    @Bind(R.id.emptyText)
+    TextView emptyText;
 
     public static TokensFragment newInstance(PushSecureClient client, DataProvider provider) {
         TokensFragment fragment = new TokensFragment();
@@ -62,13 +70,13 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        recyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
+        View root = inflater.inflate(R.layout.recyclerview, container, false);
+        ButterKnife.bind(this, root);
         adapter = new TokenAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
         displayTokens();
-        return recyclerView;
+        return root;
     }
 
     private void displayTokens() {
@@ -76,7 +84,18 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tokens -> {
                     adapter.setTokens(tokens.results);
+                    progressIndicator.setVisibility(View.GONE);
+                    maybeDisplayEmptyText();
                 });
+    }
+
+    private void maybeDisplayEmptyText() {
+        if (adapter.getItemCount() == 0) {
+            emptyText.setText(R.string.you_have_no_tokens);
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -86,6 +105,7 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
                 .subscribe(resp -> {
                             Timber.d("Delete token http response %d", resp.getStatus());
                             adapter.removeToken(token);
+                            maybeDisplayEmptyText();
                         },
                         throwable -> {
                             String message = "Failed to delete token";

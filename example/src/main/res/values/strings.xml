@@ -29,4 +29,6 @@
     <string name="create_chatsecure_push_account">Create ChatSecure Push Account</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="you_have_no_devices">You have no registered devices</string>
+    <string name="you_have_no_tokens">You have no registered tokens</string>
 </resources>

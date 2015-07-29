@@ -8,6 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.chatsecure.pushdemo.DataProvider;
 import org.chatsecure.pushdemo.R;
@@ -15,6 +17,8 @@ import org.chatsecure.pushdemo.ui.adapter.DeviceAdapter;
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Device;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
@@ -27,7 +31,14 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
     private DataProvider provider;
     private DeviceAdapter adapter;
 
-    private RecyclerView recyclerView;
+    @Bind(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    @Bind(R.id.progressBar)
+    ProgressBar progressIndicator;
+
+    @Bind(R.id.emptyText)
+    TextView emptyText;
 
     public static DevicesFragment newInstance(PushSecureClient client, DataProvider provider) {
         DevicesFragment fragment = new DevicesFragment();
@@ -57,18 +68,33 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        recyclerView = (RecyclerView) inflater.inflate(R.layout.recyclerview, container, false);
+        View root = inflater.inflate(R.layout.recyclerview, container, false);
+        ButterKnife.bind(this, root);
+
         adapter = new DeviceAdapter(provider.getDevice(), this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
         displayDevices();
-        return recyclerView;
+        return root;
     }
 
     private void displayDevices() {
         client.getAllDevices()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(adapter::setDevices);
+                .subscribe(devices -> {
+                    adapter.setDevices(devices);
+                    progressIndicator.setVisibility(View.GONE);
+                    maybeDisplayEmptyText();
+                });
+    }
+
+    private void maybeDisplayEmptyText() {
+        if (adapter.getItemCount() == 0) {
+            emptyText.setText(R.string.you_have_no_devices);
+            emptyText.setVisibility(View.VISIBLE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -78,6 +104,7 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
                 .subscribe(resp -> {
                             Timber.d("Delete token http response %d", resp.getStatus());
                             adapter.removeDevice(device);
+                            maybeDisplayEmptyText();
                         },
                         throwable -> {
                             String message = "Failed to delete token";
