@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     private void setContentFragment(Fragment fragment, int titleResId) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment, null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
 
         if (getSupportActionBar() != null) getSupportActionBar().setTitle(titleResId);
