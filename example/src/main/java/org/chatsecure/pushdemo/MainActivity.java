@@ -182,6 +182,8 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     // Show a "Create / Share Whitelist token" Fragment
                     setContentFragment(MessagingFragment.newInstance(pushSecureClient, dataProvider), R.string.messaging);
+                }, throwable -> {
+                    Timber.e(throwable, "Failed to register device!");
                 });
     }
 
