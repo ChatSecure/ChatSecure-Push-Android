@@ -22,16 +22,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
-import org.chatsecure.pushdemo.DataProvider;
 import org.chatsecure.pushdemo.R;
-import org.chatsecure.pushsecure.pushsecure.PushSecureClient;
 
 import java.io.IOException;
 
