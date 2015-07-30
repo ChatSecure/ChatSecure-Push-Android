@@ -100,7 +100,7 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
 
     @Override
     public void onRevokeTokenRequested(PushToken token) {
-        client.deleteToken(token)
+        client.deleteToken(token.token)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(resp -> {
                             Timber.d("Delete token http response %d", resp.getStatus());

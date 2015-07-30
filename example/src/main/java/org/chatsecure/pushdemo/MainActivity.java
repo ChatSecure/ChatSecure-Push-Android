@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     }
 
     private void handleRevokeTokenIntent(Intent intent) {
-        client.deleteToken(new PushToken(intent.getStringExtra(GcmService.TOKEN_EXTRA)))
+        client.deleteToken(intent.getStringExtra(GcmService.TOKEN_EXTRA))
                 .subscribe(resp -> {
                             Timber.d("Delete token http response %d", resp.getStatus());
                             handleRevokeTokenIntentProcessed(intent);

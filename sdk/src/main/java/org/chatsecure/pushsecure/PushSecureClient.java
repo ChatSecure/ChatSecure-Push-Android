@@ -85,8 +85,8 @@ public class PushSecureClient {
         return api.createToken(name, device.id);
     }
 
-    public Observable<Response> deleteToken(@NonNull PushToken token) {
-        return api.deleteToken(token.token);
+    public Observable<Response> deleteToken(@NonNull String token) {
+        return api.deleteToken(token);
     }
 
     public Observable<TokenList> getTokens() {
