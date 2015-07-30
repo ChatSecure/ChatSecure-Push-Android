@@ -77,7 +77,7 @@ client.createToken(requiredDevice, optionalName)
 ```
 ### 5. Share your push token
 
-We reccommend sharing a push token with a *single* recipient.
+We recommend sharing a push token with a *single* recipient.
 
 ### 6. Send a push message to a push token.
 
