@@ -105,8 +105,15 @@ public class MyGcmService extends GcmListenerService {
 
         PushMessage push = parser.onMessageReceived(from, data);
 
-        if (push != null)
+        if (push != null) {
             Log.d("GotPush", "Received '" + push.payload + "' via token: " + push.token);
+            
+            // If you no longer want to receive messages from this recipient
+            PushSecureClient client = new PushSecureClient("your chatsecure server url");
+            client.deleteToken(push.token)
+                  .subscribe(response -> // deleted token,
+                             error ->    // an error occurred);
+        }
     }
     ...
 }
