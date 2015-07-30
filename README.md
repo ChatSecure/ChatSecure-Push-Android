@@ -60,7 +60,7 @@ client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail)
                     // with this account's credentials
                     client.setAccount(account);
                 },
-                 error -> // an error occurred);
+                 error -> {/* an error occurred */});
 ```
 
 
@@ -70,16 +70,16 @@ client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail)
 // Retrieve your GCM token as requiredGcmToken
 // See [Google's example](https://github.com/googlesamples/google-services/blob/e06754fc7d0e4bf856c001a82fb630abd1b9492a/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/RegistrationIntentService.java#L54)
 client.createDevice(requiredGcmToken, optionalName, optionalDeviceId)
-      .subscribe(device -> // Created Device,
-                 error -> // an error occurred);
+      .subscribe(device -> {/* Created Device */},
+                 error -> {/* an error occurred */});
 ```
 
 ### 5. Request a push token which represents push access to your device
 
 ```java
 client.createToken(requiredDevice, optionalName)
-      .subscribe(token -> // Created PushToken,
-                 error -> // an error occurred);
+      .subscribe(token -> {/* Created PushToken */},
+                 error -> {/* an error occurred */});
 ```
 ### 6. Share your push token
 
@@ -89,8 +89,8 @@ We recommend sharing a push token with a *single* recipient.
 
 ```java
 client.sendMessage(requiredPushTokenString, optionalData)
-      .subscribe(message -> // Sent Message,
-                 error -> // an error occurred);
+      .subscribe(message -> {/* Sent Message */},
+                 error -> {/* an error occurred */});
 ```
 
 ### 8. Parse incoming ChatSecure Push GCM Messages
@@ -116,8 +116,8 @@ public class MyGcmService extends GcmListenerService {
             
             // If you no longer want to receive messages from this recipient
             pushSecureClient.deleteToken(push.token)
-                            .subscribe(response -> // deleted token,
-                                       error ->    // an error occurred);
+                            .subscribe(response -> {/* deleted token*/},
+                                       error ->    {/* an error occurred*/});
         }
     }
     ...
