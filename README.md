@@ -54,11 +54,17 @@ PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuap
 
 ```java
 client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail)
-      .subscribe(account -> // Authenticated Account,
+      .subscribe(account -> {
+                    // Authenticated Account
+                    // Inform the client that it should authorize itself
+                    // with this account's credentials
+                    client.setAccount(account);
+                },
                  error -> // an error occurred);
 ```
 
-### 3. Use a GCM token to register a pushable device with ChatSecure Push
+
+### 4. Use a GCM token to register a pushable device with ChatSecure Push
 
 ```java
 // Retrieve your GCM token as requiredGcmToken
@@ -68,18 +74,18 @@ client.createDevice(requiredGcmToken, optionalName, optionalDeviceId)
                  error -> // an error occurred);
 ```
 
-### 4. Request a push token which represents push access to your device
+### 5. Request a push token which represents push access to your device
 
 ```java
 client.createToken(requiredDevice, optionalName)
       .subscribe(token -> // Created PushToken,
                  error -> // an error occurred);
 ```
-### 5. Share your push token
+### 6. Share your push token
 
 We recommend sharing a push token with a *single* recipient.
 
-### 6. Send a push message to a push token.
+### 7. Send a push message to a push token.
 
 ```java
 client.sendMessage(requiredPushTokenString, optionalData)
@@ -87,7 +93,7 @@ client.sendMessage(requiredPushTokenString, optionalData)
                  error -> // an error occurred);
 ```
 
-### 7. Parse incoming ChatSecure Push GCM Messages
+### 8. Parse incoming ChatSecure Push GCM Messages
 
 See [Google's Example](https://github.com/googlesamples/google-services/blob/e06754fc7d0e4bf856c001a82fb630abd1b9492a/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MyGcmListenerService.java) for a complete `GcmListenerService` implementation. Below we include the additions necessary to parse ChatSecure Push messages.
     
@@ -109,10 +115,9 @@ public class MyGcmService extends GcmListenerService {
             Log.d("GotPush", "Received '" + push.payload + "' via token: " + push.token);
             
             // If you no longer want to receive messages from this recipient
-            PushSecureClient client = new PushSecureClient("your chatsecure server url");
-            client.deleteToken(push.token)
-                  .subscribe(response -> // deleted token,
-                             error ->    // an error occurred);
+            pushSecureClient.deleteToken(push.token)
+                            .subscribe(response -> // deleted token,
+                                       error ->    // an error occurred);
         }
     }
     ...
