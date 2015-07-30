@@ -38,8 +38,8 @@ interface PushSecureApi {
 
     @POST("/device/gcm/")
     @FormUrlEncoded
-    Observable<Device> createDevice(@Nullable @Field("name") String name,
-                                    @NonNull @Field("registration_id") String registrationId,
+    Observable<Device> createDevice(@NonNull @Field("registration_id") String registrationId,
+                                    @Nullable @Field("name") String name,
                                     @Nullable @Field("device_id") String deviceId);
 
     @PUT("/device/gcm/{id}/")

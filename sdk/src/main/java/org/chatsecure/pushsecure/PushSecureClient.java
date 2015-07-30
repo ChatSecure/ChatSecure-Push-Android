@@ -74,8 +74,8 @@ public class PushSecureClient {
         return api.authenticateAccount(username, password, email);
     }
 
-    public Observable<Device> createDevice(@Nullable String name,
-                                           @NonNull String gcmRegistrationId,
+    public Observable<Device> createDevice(@NonNull String gcmRegistrationId,
+                                           @Nullable String name,
                                            @Nullable String gcmDeviceId) {
 
         return api.createDevice(name, gcmRegistrationId, gcmDeviceId);

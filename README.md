@@ -11,3 +11,93 @@ This is a demo [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure
     At the conclusion of the registration process you'll be presented with a `Server API Key` and a `google-services.json` file.
 
 3. Copy the GCM `Server API Key` to `./push/push/local_settings.py` in the ChatSecure Push Server Django project. Copy `google-services.json` to this project's `./example` directory.
+
+# Using the SDK
+
+These are preliminary notes and do not represent the final API. TODO : Traditional callback API without lambdas
+
+Currently, you must include ChatSecure Push as a submodule. Releases will be published as Maven artifacts.
+
+0. Get the SDK
+
+Add this repository as a git submodule:
+
+```
+cd your/project/root
+git submodule add https://github.com/ChatSecure/ChatSecure-Push-Android.git ./submodules/chatsecure-push/
+```
+
+Edit your project's root `settings.gradle`:
+
+```groovy
+include ':myapp', ':submodules:chatsecure-push:sdk'
+``
+
+Edit your application module's `build.gradle`:
+
+```groovy
+...
+dependencies {
+    compile project(':submodules:chatsecure-push:sdk')
+}
+```
+
+1. Create a PushSecureClient
+
+    PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
+
+2. Register a user account
+
+```java
+client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail)
+      .subscribe(account -> // Authenticated Account,
+                 error -> // an error occurred);
+```
+
+3. Obtain a GCM token to register a pushable device with ChatSecure Push
+
+```java
+// Retrieve your GCM token as requiredGcmToken
+// See [Google's example](https://github.com/googlesamples/google-services/blob/e06754fc7d0e4bf856c001a82fb630abd1b9492a/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/RegistrationIntentService.java#L54)
+client.createDevice(requiredGcmToken, optionalName, optionalDeviceId)
+      .subscribe(device -> // Created Device,
+                 error -> // an error occurred);
+```
+
+4. Request a push token which gives its bearer push access to your device
+
+```java
+client.createToken(requiredDevice, optionalName)
+      .subscribe(token -> // Created PushToken,
+                 error -> // an error occurred);
+```
+
+5. Send a push message to another user's (or your own!) push token.
+
+```java
+client.sendMessage(requiredPushTokenString, optionalData)
+      .subscribe(message -> // Sent Message,
+                 error -> // an error occurred);
+```
+
+6. Parse incoming ChatSecure Push GCM Messages
+
+See [Google's Example](https://github.com/googlesamples/google-services/blob/e06754fc7d0e4bf856c001a82fb630abd1b9492a/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MyGcmListenerService.java) for a complete `GcmListenerService` implementation. Below we include the additions necessary to parse ChatSecure Push messages.
+
+```java
+
+public class MyGcmService extends GcmListenerService {
+
+    PushParser parser = new PushParser();
+
+    @Override
+    public void onMessageReceived(String from, Bundle data) {
+
+        PushMessage push = parser.onMessageReceived(from, data);
+
+        if (push != null)
+            Log.d("GotPush", "Received '" + push.payload + "' via token: " + push.token);
+    }
+    ...
+}
+```
