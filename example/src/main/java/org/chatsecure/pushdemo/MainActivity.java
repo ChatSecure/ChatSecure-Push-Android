@@ -89,11 +89,6 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
         setSupportActionBar(toolbar);
         final ActionBar actionBar = getSupportActionBar();
 
-        if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         navigation.setNavigationItemSelectedListener(this);
 
         signOut.setOnClickListener(this);
@@ -103,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
             dataProvider = new DataProvider(this);
 
             client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
+            //client = new PushSecureClient("http://10.11.41.186:8000/api/v1/");
 
             register();
         }
@@ -139,7 +135,12 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
 
-        if (getSupportActionBar() != null) getSupportActionBar().setTitle(titleResId);
+        ActionBar actionBar;
+        if ((actionBar = getSupportActionBar()) != null) {
+            actionBar.setTitle(titleResId);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     private void handleRevokeTokenIntent(Intent intent) {
@@ -169,9 +170,9 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                 client,
                 dataProvider, () -> {
                     // Registration needed
-                    if (getSupportActionBar() != null) getSupportActionBar().hide();
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                     setContentFragment(RegistrationFragment.newInstance(client), R.string.registration);
+                    hideActionBar();
 
                     newAccountObservable = PublishSubject.create();
                     return newAccountObservable;
@@ -179,7 +180,6 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(pushSecureClient -> {
                     Timber.d("Registered");
-                    if (getSupportActionBar() != null) getSupportActionBar().show();
                     name.setText(dataProvider.getPushSecureUsername());
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     // Show a "Create / Share Whitelist token" Fragment
@@ -252,8 +252,17 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     public void onClick(View v) {
         if (v.equals(signOut)) {
             dataProvider.clear();
+            client.setAccount(null);
             register();
             drawer.closeDrawers();
+        }
+    }
+
+    private void hideActionBar() {
+        ActionBar actionBar;
+        if ((actionBar = getSupportActionBar()) !=  null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setTitle("");
         }
     }
 }
