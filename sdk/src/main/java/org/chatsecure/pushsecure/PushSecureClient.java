@@ -56,8 +56,8 @@ public class PushSecureClient {
         api = restAdapter.create(PushSecureApi.class);
     }
 
-    public void setAccount(@NonNull Account account) {
-        this.token = account.token;
+    public void setAccount(@Nullable Account account) {
+        this.token = account != null ? account.token : null;
     }
 
     /**
@@ -78,7 +78,7 @@ public class PushSecureClient {
                                            @Nullable String name,
                                            @Nullable String gcmDeviceId) {
 
-        return api.createDevice(name, gcmRegistrationId, gcmDeviceId);
+        return api.createDevice(gcmRegistrationId, name, gcmDeviceId);
     }
 
     public Observable<PushToken> createToken(@NonNull Device device, @Nullable String name) {
