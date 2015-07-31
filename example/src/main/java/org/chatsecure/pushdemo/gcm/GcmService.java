@@ -92,6 +92,7 @@ public class GcmService extends GcmListenerService {
         if (fromToken != null) builder.setContentText("From " + fromToken);
         builder.setVibrate(new long[]{250, 250});
         builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setPriority(NotificationCompat.PRIORITY_MAX);
 
         Intent blockIntent = new Intent(this, MainActivity.class);
         blockIntent.setAction(REVOKE_TOKEN_ACTION);
