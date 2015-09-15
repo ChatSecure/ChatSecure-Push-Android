@@ -60,7 +60,7 @@ public class GcmService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
 
-        PushMessage pushSecureMessage = parser.onMessageReceived(from, data);
+        PushMessage pushSecureMessage = parser.parseBundle(from, data);
 
         if (pushSecureMessage != null)
             postNotification(pushSecureMessage.payload, pushSecureMessage.token);

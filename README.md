@@ -14,8 +14,6 @@ This is a demo [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure
 
 # Using the SDK
 
-These are preliminary notes and do not represent the final API. TODO : Traditional callback API without lambdas
-
 Currently, you must include ChatSecure Push as a submodule. Releases will be published as Maven artifacts.
 
 0. Get the SDK
@@ -49,9 +47,18 @@ dependencies {
 2. Register a user account
 
 ```java
-client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail)
-      .subscribe(account -> // Authenticated Account,
-                 error -> // an error occurred);
+client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail,
+                           new RequestCallback<Account>() {
+                              @Override
+                              public void onSuccess(Account response) {
+                                // Authenticated Account
+                              }
+
+                              @Override
+                              public void onFailure(Throwable throwable) {
+                                // An error occurred
+                              }
+                           });
 ```
 
 3. Obtain a GCM token to register a pushable device with ChatSecure Push
@@ -59,25 +66,70 @@ client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail)
 ```java
 // Retrieve your GCM token as requiredGcmToken
 // See [Google's example](https://github.com/googlesamples/google-services/blob/e06754fc7d0e4bf856c001a82fb630abd1b9492a/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/RegistrationIntentService.java#L54)
-client.createDevice(requiredGcmToken, optionalName, optionalDeviceId)
-      .subscribe(device -> // Created Device,
-                 error -> // an error occurred);
+client.createDevice(requiredGcmToken, optionalName, optionalDeviceId,
+                            new RequestCallback<Device>() {
+                              @Override
+                              public void onSuccess(Device response) {
+                                // Registered Device
+                              }
+
+                              @Override
+                              public void onFailure(Throwable throwable) {
+                                // An error occurred
+                              }
+                           });
 ```
 
 4. Request a push token which gives its bearer push access to your device
 
 ```java
-client.createToken(requiredDevice, optionalName)
-      .subscribe(token -> // Created PushToken,
-                 error -> // an error occurred);
+client.createToken(requiredDevice, optionalName,
+                    new RequestCallback<PushToken>() {
+                      @Override
+                      public void onSuccess(PushToken response) {
+                        // Created push token. Share this with a pal
+                        // to let them send your device push messages!
+                      }
+
+                      @Override
+                      public void onFailure(Throwable throwable) {
+                        // An error occurred
+                      }
+                   });
+```
+
+4a. You can revoke a push token, which removes its affiliation with your device.
+
+```java
+client.deleteToken(requiredTokenString,
+                    new RequestCallback<Void>() {
+                      @Override
+                      public void onSuccess(Void response) {
+                        // Revoked push token
+                      }
+
+                      @Override
+                      public void onFailure(Throwable throwable) {
+                        // An error occurred
+                      }
+                   });
 ```
 
 5. Send a push message to another user's (or your own!) push token.
 
 ```java
-client.sendMessage(requiredPushTokenString, optionalData)
-      .subscribe(message -> // Sent Message,
-                 error -> // an error occurred);
+client.sendMessage(requiredPushTokenString, optionalData,
+                    new RequestCallback<Message>() {
+                      @Override
+                      public void onSuccess(Message response) {
+                        // Sent message
+                      }
+
+                      @Override
+                      public void onFailure(Throwable throwable) {
+                        // An error occurred
+                      }
+                    });
 ```
 
 6. Parse incoming ChatSecure Push GCM Messages
@@ -93,7 +145,7 @@ public class MyGcmService extends GcmListenerService {
     @Override
     public void onMessageReceived(String from, Bundle data) {
 
-        PushMessage push = parser.onMessageReceived(from, data);
+        PushMessage push = parser.parseBundle(from, data);
 
         if (push != null)
             Log.d("GotPush", "Received '" + push.payload + "' via token: " + push.token);

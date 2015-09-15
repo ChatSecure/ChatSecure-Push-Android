@@ -16,13 +16,13 @@ public class PushParser {
     private Gson gson = new Gson();
 
     /**
-     * Handle a push message received from GcmListenerService#onMessageReceived that
+     * Handle a push message received from GcmListenerService#parseBundle that
      * might originate from ChatSecure Push.
      * @param from the from identifier as reported by GCM
      * @param data the payload as reported by GCM
      * @return a {@link PushMessage} or null if this message is not a ChatSecure Push message
      */
-    public @Nullable PushMessage onMessageReceived(String from, Bundle data) {
+    public @Nullable PushMessage parseBundle(String from, Bundle data) {
         try {
             String message = data.getString("message");
             JsonObject payload = gson.fromJson(message, JsonObject.class);
