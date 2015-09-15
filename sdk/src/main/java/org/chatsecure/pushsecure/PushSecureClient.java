@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.chatsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.response.Device;
@@ -16,8 +17,10 @@ import org.chatsecure.pushsecure.response.Message;
 import org.chatsecure.pushsecure.response.PushToken;
 import org.chatsecure.pushsecure.response.TokenList;
 
+import java.io.IOException;
 import java.util.Date;
 
+import okio.Buffer;
 import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -42,17 +45,29 @@ public class PushSecureClient {
 
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(chain -> {
-            if (token == null) return chain.proceed(chain.request());
 
-            // Log request
-            Timber.d(chain.request().toString());
+            Request request = null;
 
-            // If a ChatSecure-Push auth token has been set, attach that to each request
-            Request modifiedRequest = chain.request()
-                    .newBuilder()
-                    .addHeader("Authorization", "Token " + token)
-                    .build();
-            return chain.proceed(modifiedRequest);
+            if (token == null) {
+                request = chain.request();
+            } else {
+                // If a ChatSecure-Push auth token has been set, attach that to each request
+                request = chain.request()
+                        .newBuilder()
+                        .addHeader("Authorization", "Token " + token)
+                        .build();
+            }
+
+            logRequest(request);
+
+            // Perform request
+            Response response = chain.proceed(request);
+
+            // Log response
+            logResponse(response);
+            Timber.d(response.toString());
+
+            return response;
         });
 
         Gson gson = new GsonBuilder()
@@ -143,5 +158,44 @@ public class PushSecureClient {
 
     public Call<Void> deleteDevice(@NonNull String id) {
         return api.deleteDevice(id);
+    }
+
+    private void logRequest(Request request) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(request.method())
+                .append(" ")
+                .append(request.httpUrl())
+                .append("\n")
+                .append(request.headers().toString());
+
+        try {
+            final Request copy = request.newBuilder().build();
+            final Buffer buffer = new Buffer();
+            copy.body().writeTo(buffer);
+            builder.append(buffer.readUtf8());
+        } catch (final IOException e) {
+            Timber.e(e, "Failed to log request body");
+        }
+
+        Timber.d("Request -> " + builder.toString());
+    }
+
+    private void logResponse(Response response) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(response.code())
+                .append(" ")
+                .append(response.request().httpUrl())
+                .append("\n")
+                .append(response.headers().toString())
+                .append("\n");
+        try {
+            final Response copy = response.newBuilder().build();
+            builder.append(copy.body().string());
+            copy.body().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Timber.d("Response <- " + builder.toString());
     }
 }
