@@ -2,9 +2,11 @@
 
 This is a demo [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure-Push-Server) Android client.
 
-# Setup ChatSecure Push Server and Google Cloud Messaging
+# Requirements 
 
-1. Clone and setup the [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure-Push-Server) Django project.
+This Android demo requires a **ChatSecure Push Server** and a **Google Cloud Messaging account**.
+
+1. Clone and setup the [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure-Push-Server) Django project. You can also test against our demo heroku instance at `https://chatsecure-push.herokuapp.com/api/v1/`.
 
 2. Register a Google Cloud Messaging Application with [Google Developers](https://developers.google.com/mobile/add)
 
