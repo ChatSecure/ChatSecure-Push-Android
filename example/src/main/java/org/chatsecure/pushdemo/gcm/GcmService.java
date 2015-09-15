@@ -25,8 +25,8 @@ import com.google.android.gms.gcm.GcmListenerService;
 
 import org.chatsecure.pushdemo.MainActivity;
 import org.chatsecure.pushdemo.R;
-import org.chatsecure.pushsecure.gcm.PushParser;
 import org.chatsecure.pushsecure.gcm.PushMessage;
+import org.chatsecure.pushsecure.gcm.PushParser;
 
 import java.util.Random;
 

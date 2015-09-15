@@ -13,16 +13,15 @@ import android.widget.TextView;
 
 import org.chatsecure.pushdemo.DataProvider;
 import org.chatsecure.pushdemo.R;
-import org.chatsecure.pushdemo.gcm.GcmService;
-import org.chatsecure.pushdemo.ui.adapter.DeviceAdapter;
 import org.chatsecure.pushdemo.ui.adapter.TokenAdapter;
 import org.chatsecure.pushsecure.PushSecureClient;
-import org.chatsecure.pushsecure.response.Device;
 import org.chatsecure.pushsecure.response.PushToken;
+import org.chatsecure.pushsecure.response.TokenList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.android.schedulers.AndroidSchedulers;
+import retrofit.Callback;
+import retrofit.Response;
 import timber.log.Timber;
 
 /**
@@ -81,11 +80,21 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
 
     private void displayTokens() {
         client.getTokens()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(tokens -> {
-                    adapter.setTokens(tokens.results);
-                    progressIndicator.setVisibility(View.GONE);
-                    maybeDisplayEmptyText();
+                .enqueue(new Callback<TokenList>() {
+                    @Override
+                    public void onResponse(Response<TokenList> response) {
+                        adapter.setTokens(response.body().results);
+                        progressIndicator.setVisibility(View.GONE);
+                        maybeDisplayEmptyText();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        String message = "Failed to fetch tokens";
+                        Timber.e(throwable, message);
+                        Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
                 });
     }
 
@@ -101,17 +110,21 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
     @Override
     public void onRevokeTokenRequested(PushToken token) {
         client.deleteToken(token.token)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(resp -> {
-                            Timber.d("Delete token http response %d", resp.getStatus());
-                            adapter.removeToken(token);
-                            maybeDisplayEmptyText();
-                        },
-                        throwable -> {
-                            String message = "Failed to delete token";
-                            Timber.e(throwable, message);
-                            Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
-                                    .show();
-                        });
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Response<Void> response) {
+                        Timber.d("Delete token http response %d", response.code());
+                        adapter.removeToken(token);
+                        maybeDisplayEmptyText();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        String message = "Failed to delete token";
+                        Timber.e(throwable, message);
+                        Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
+                });
     }
 }

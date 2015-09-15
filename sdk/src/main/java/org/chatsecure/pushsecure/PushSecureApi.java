@@ -1,7 +1,6 @@
 package org.chatsecure.pushsecure;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import org.chatsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.response.Device;
@@ -10,7 +9,7 @@ import org.chatsecure.pushsecure.response.Message;
 import org.chatsecure.pushsecure.response.PushToken;
 import org.chatsecure.pushsecure.response.TokenList;
 
-import retrofit.client.Response;
+import retrofit.Call;
 import retrofit.http.Body;
 import retrofit.http.DELETE;
 import retrofit.http.Field;
@@ -19,7 +18,6 @@ import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.PUT;
 import retrofit.http.Path;
-import rx.Observable;
 
 /**
  * API Definition for ChatSecure Push Server Protocol 3.1, Level 1
@@ -32,42 +30,42 @@ interface PushSecureApi {
 
     @POST("/accounts/")
     @FormUrlEncoded
-    Observable<Account> authenticateAccount(@NonNull @Field("username") String username,
-                                            @NonNull @Field("password") String password,
-                                            @Nullable @Field("email") String email);
+    Call<Account> authenticateAccount(@NonNull @Field("username") String username,
+                                      @NonNull @Field("password") String password,
+                                      @Field("email") String email);
 
     @POST("/device/gcm/")
     @FormUrlEncoded
-    Observable<Device> createDevice(@NonNull @Field("registration_id") String registrationId,
-                                    @Nullable @Field("name") String name,
-                                    @Nullable @Field("device_id") String deviceId);
+    Call<Device> createDevice(@NonNull @Field("registration_id") String registrationId,
+                              @Field("name") String name,
+                              @Field("device_id") String deviceId);
 
     @PUT("/device/gcm/{id}/")
-    Observable<Device> updateDevice(@NonNull @Path("id") String id,
-                                    @Body Device device);
+    Call<Device> updateDevice(@NonNull @Path("id") String id,
+                              @Body Device device);
 
     @DELETE("/device/gcm/{id}/")
-    Observable<Response> deleteDevice(@NonNull @Path("id") String id);
+    Call<Void> deleteDevice(@NonNull @Path("id") String id);
 
     @POST("/tokens/")
     @FormUrlEncoded
-    Observable<PushToken> createToken(@Nullable @Field("name") String name,
-                                      @Field("gcm_device") String id);
+    Call<PushToken> createToken(@NonNull @Field("gcm_device") String id,
+                                @Field("name") String name);
 
     @GET("/tokens/")
-    Observable<TokenList> getTokens();
+    Call<TokenList> getTokens();
 
     @DELETE("/tokens/{token}/")
-    Observable<Response> deleteToken(@NonNull @Path("token") String token);
+    Call<Void> deleteToken(@NonNull @Path("token") String token);
 
     @POST("/messages/")
     @FormUrlEncoded
-    Observable<Message> sendMessage(@NonNull @Field("token") String token,
-                                    @Nullable @Field("data") String data);
+    Call<Message> sendMessage(@NonNull @Field("token") String token,
+                              @Field("data") String data);
 
     @GET("/device/gcm/")
-    Observable<DeviceList> getGcmDevices();
+    Call<DeviceList> getGcmDevices();
 
     @GET("/device/apns/")
-    Observable<DeviceList> getApnsDevices();
+    Call<DeviceList> getApnsDevices();
 }

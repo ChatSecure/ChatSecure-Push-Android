@@ -14,11 +14,13 @@ import android.widget.EditText;
 import org.chatsecure.pushdemo.DataProvider;
 import org.chatsecure.pushdemo.R;
 import org.chatsecure.pushsecure.PushSecureClient;
+import org.chatsecure.pushsecure.response.Message;
+import org.chatsecure.pushsecure.response.PushToken;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import retrofit.RetrofitError;
-import rx.android.schedulers.AndroidSchedulers;
+import retrofit.Callback;
+import retrofit.Response;
 import timber.log.Timber;
 
 /**
@@ -89,19 +91,24 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
 
                 button.setEnabled(false);
                 client.createToken(provider.getDevice(), null)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(newToken -> {
-                            button.setEnabled(true);
-                            Intent shareIntent = new Intent();
-                            shareIntent.setAction(Intent.ACTION_SEND);
-                            shareIntent.setType("text/plain");
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, newToken.token);
-                            startActivity(Intent.createChooser(shareIntent, "Share Push Token"));
-                        }, throwable -> {
-                            Timber.e(throwable, "Error fetching new token");
-                            button.setEnabled(true);
-                            Snackbar.make(container, "Error fetching new token", Snackbar.LENGTH_SHORT)
-                                    .show();
+                        .enqueue(new Callback<PushToken>() {
+                            @Override
+                            public void onResponse(Response<PushToken> response) {
+                                button.setEnabled(true);
+                                Intent shareIntent = new Intent();
+                                shareIntent.setAction(Intent.ACTION_SEND);
+                                shareIntent.setType("text/plain");
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, response.body().token);
+                                startActivity(Intent.createChooser(shareIntent, "Share Push Token"));
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+                                Timber.e(t, "Error fetching new token");
+                                button.setEnabled(true);
+                                Snackbar.make(container, "Error fetching new token", Snackbar.LENGTH_SHORT)
+                                        .show();
+                            }
                         });
                 break;
 
@@ -109,22 +116,27 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
 
                 button.setEnabled(false);
                 client.sendMessage(peerTokenEditText.getText().toString(), payloadEditText.getText().toString())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(message -> {
-                            button.setEnabled(true);
-                            String feedbackMessage = "Sent Message";
-                            Timber.d(feedbackMessage);
-                            Snackbar.make(container, feedbackMessage, Snackbar.LENGTH_SHORT)
-                                    .show();
-                        }, throwable -> {
-                            String message = "Error sending message.";
-                            if (throwable instanceof RetrofitError && ((RetrofitError) throwable).getResponse().getStatus() == 404)
-                                message += " Push token may be invalid.";
+                        .enqueue(new Callback<Message>() {
+                            @Override
+                            public void onResponse(Response<Message> response) {
+                                button.setEnabled(true);
+                                String feedbackMessage = "Sent Message";
+                                Timber.d(feedbackMessage);
+                                Snackbar.make(container, feedbackMessage, Snackbar.LENGTH_SHORT)
+                                        .show();
+                            }
 
-                            button.setEnabled(true);
-                            Timber.e(throwable, message);
-                            Snackbar.make(container, message, Snackbar.LENGTH_SHORT)
-                                    .show();
+                            @Override
+                            public void onFailure(Throwable t) {
+                                String message = "Error sending message.";
+//                                if (t instanceof RetrofitError && ((RetrofitError) throwable).getResponse().getStatus() == 404)
+//                                    message += " Push token may be invalid.";
+
+                                button.setEnabled(true);
+                                Timber.e(t, message);
+                                Snackbar.make(container, message, Snackbar.LENGTH_SHORT)
+                                        .show();
+                            }
                         });
                 break;
         }

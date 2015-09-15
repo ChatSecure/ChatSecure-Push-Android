@@ -17,8 +17,11 @@ import org.chatsecure.pushdemo.ui.adapter.DeviceAdapter;
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Device;
 
+import java.io.IOException;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
 
@@ -79,13 +82,20 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
     }
 
     private void displayDevices() {
-        client.getAllDevices()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(devices -> {
-                    adapter.setDevices(devices);
-                    progressIndicator.setVisibility(View.GONE);
-                    maybeDisplayEmptyText();
-                });
+        // TODO : Combined APNS + GCM Devices call
+        Observable.defer(() -> {
+            try {
+                return Observable.just(client.getGcmDevices().execute());
+            } catch (IOException e) {
+                return Observable.error(e);
+            }
+        })
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(devices -> {
+            adapter.setDevices(devices.body().results);
+            progressIndicator.setVisibility(View.GONE);
+            maybeDisplayEmptyText();
+        });
     }
 
     private void maybeDisplayEmptyText() {
@@ -99,18 +109,24 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
 
     @Override
     public void onRevokeDeviceRequested(Device device) {
-        client.deleteDevice(device.id)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(resp -> {
-                            Timber.d("Delete token http response %d", resp.getStatus());
-                            adapter.removeDevice(device);
-                            maybeDisplayEmptyText();
-                        },
-                        throwable -> {
-                            String message = "Failed to delete token";
-                            Timber.e(throwable, message);
-                            Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
-                                    .show();
-                        });
+        Observable.defer(() -> {
+            try {
+                return Observable.just(client.deleteDevice(device.id).execute());
+            } catch (IOException e) {
+                return Observable.error(e);
+            }
+        })
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(resp -> {
+                    Timber.d("Delete token http response %d", resp.code());
+                    adapter.removeDevice(device);
+                    maybeDisplayEmptyText();
+                },
+                throwable -> {
+                    String message = "Failed to delete token";
+                    Timber.e(throwable, message);
+                    Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                            .show();
+                });
     }
 }

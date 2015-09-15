@@ -2,9 +2,10 @@ package org.chatsecure.pushdemo;
 
 import android.support.annotation.NonNull;
 
-
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Account;
+
+import java.io.IOException;
 
 import rx.Observable;
 import timber.log.Timber;
@@ -60,10 +61,11 @@ public class Registration {
     private static void registerDevice(String gcmToken, DataProvider dataProvider, PushSecureClient client) {
         if (dataProvider.getDevice() == null || !dataProvider.getDevice().registrationId.equals(gcmToken)) {
             Timber.d("Registering GCM token with ChatSecure-Push");
-            client.createDevice(gcmToken, "whateverDevice", null)
-            .doOnNext(dataProvider::setDevice)
-                    .toBlocking()
-                    .single();
+            try {
+                client.createDevice(gcmToken, "whateverDevice", null).execute();
+            } catch (IOException e) {
+                Timber.e(e, "Failed to register device");
+            }
         } else {
             Timber.d("GCM token already registered with ChatSecure-Push");
         }

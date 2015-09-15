@@ -45,10 +45,11 @@ import org.chatsecure.pushdemo.ui.fragment.RegistrationFragment;
 import org.chatsecure.pushdemo.ui.fragment.TokensFragment;
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Account;
-import org.chatsecure.pushsecure.response.PushToken;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import retrofit.Callback;
+import retrofit.Response;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
@@ -145,14 +146,19 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
 
     private void handleRevokeTokenIntent(Intent intent) {
         client.deleteToken(intent.getStringExtra(GcmService.TOKEN_EXTRA))
-                .subscribe(resp -> {
-                            Timber.d("Delete token http response %d", resp.getStatus());
-                            handleRevokeTokenIntentProcessed(intent);
-                        },
-                        throwable -> {
-                            Timber.e(throwable, "Failed to delete token");
-                            handleRevokeTokenIntentProcessed(intent);
-                        });
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Response<Void> response) {
+                        Timber.d("Delete token http response %d", response.code());
+                        handleRevokeTokenIntentProcessed(intent);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Timber.e(t, "Failed to delete token");
+                        handleRevokeTokenIntentProcessed(intent);
+                    }
+                });
     }
 
     private void handleRevokeTokenIntentProcessed(Intent intent) {
