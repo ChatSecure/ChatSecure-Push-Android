@@ -16,7 +16,7 @@ This is a demo [ChatSecure Push Server](https://github.com/ChatSecure/ChatSecure
 
 Currently, you must include ChatSecure Push as a submodule. Releases will be published as Maven artifacts.
 
-0. Get the SDK
+### 1. Get the SDK
 
 Add this repository as a git submodule:
 
@@ -25,13 +25,13 @@ cd your/project/root
 git submodule add https://github.com/ChatSecure/ChatSecure-Push-Android.git ./submodules/chatsecure-push/
 ```
 
-Edit your project's root `settings.gradle`:
+Edit your project's root `settings.gradle`. This makes the PushSecure submodule's gradle module available to any other gradle modules within your project.
 
 ```groovy
 include ':myapp', ':submodules:chatsecure-push:sdk'
-``
+```
 
-Edit your application module's `build.gradle`:
+Edit your application module's `build.gradle`. This informs gradle that your application's gradle module depends on the PushSecure gradle module (submodule). Say that five times fast.
 
 ```groovy
 ...
@@ -40,11 +40,19 @@ dependencies {
 }
 ```
 
-1. Create a PushSecureClient
+### 2. Create a PushSecureClient
 
-    PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
+The API client is designed to operate against any compatible ChatSecure-Push backend.
 
-2. Register a user account
+```java
+PushSecureClient client = new PushSecureClient("https://chatsecure-push.herokuapp.com/api/v1/");
+```
+
+### 3. Authenticate a user account
+
+You'll need to have an `Account` registered with the API client to perform requests.
+You can create or login to an existing account with the `authenticateAccount` method.
+You should generally do this once per app-launch to ensure you have a fresh Account authentication token.
 
 ```java
 client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail,
@@ -52,6 +60,9 @@ client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail,
                               @Override
                               public void onSuccess(Account response) {
                                 // Authenticated Account
+                                // Register this account with the api client
+                                // to perform authenticated requests
+                                client.setAccount(response);
                               }
 
                               @Override
@@ -61,7 +72,15 @@ client.authenticateAccount(requiredUsername, requiredPassword, optionalEmail,
                            });
 ```
 
-3. Obtain a GCM token to register a pushable device with ChatSecure Push
+If you have a persisted `Account` object you can set that at any time. This might be useful if you're managing multiple `Account`s from a single device.
+
+```java
+client.setAccount(account);
+```
+
+### 4. Register a Pushable Device 
+
+On Android, we'll obtain a GCM token and register a GCM device with ChatSecure Push.
 
 ```java
 // Retrieve your GCM token as requiredGcmToken
@@ -80,7 +99,9 @@ client.createDevice(requiredGcmToken, optionalName, optionalDeviceId,
                            });
 ```
 
-4. Request a push token which gives its bearer push access to your device
+### 5. Request a Whitelist Token
+
+A Whitelist token gives its bearer push access to your device. It can be revoked at any time (see 5a).
 
 ```java
 client.createToken(requiredDevice, optionalName,
@@ -98,7 +119,11 @@ client.createToken(requiredDevice, optionalName,
                    });
 ```
 
-4a. You can revoke a push token, which removes its affiliation with your device.
+### 5a. Revoke a Whitelist token
+
+This removes its affiliation with your device, and you will no longer receive pushes from uers who "know you" by this token. 
+
+Holders of the revoked token won't be immediately notified, but they will be told their token "does not exist" the next time they try to use it.
 
 ```java
 client.deleteToken(requiredTokenString,
@@ -115,10 +140,12 @@ client.deleteToken(requiredTokenString,
                    });
 ```
 
-5. Send a push message to another user's (or your own!) push token.
+### 6. Send a Push Message
+
+Push Message Recipients are always identified by their Whitelist token.
 
 ```java
-client.sendMessage(requiredPushTokenString, optionalData,
+client.sendMessage(requiredWhitelistTokenString, optionalData,
                     new RequestCallback<Message>() {
                       @Override
                       public void onSuccess(Message response) {
@@ -132,7 +159,7 @@ client.sendMessage(requiredPushTokenString, optionalData,
                     });
 ```
 
-6. Parse incoming ChatSecure Push GCM Messages
+### 7. Parse incoming ChatSecure Push GCM Messages
 
 See [Google's Example](https://github.com/googlesamples/google-services/blob/e06754fc7d0e4bf856c001a82fb630abd1b9492a/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MyGcmListenerService.java) for a complete `GcmListenerService` implementation. Below we include the additions necessary to parse ChatSecure Push messages.
 
