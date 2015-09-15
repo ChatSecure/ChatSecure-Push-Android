@@ -79,23 +79,22 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
     }
 
     private void displayTokens() {
-        client.getTokens()
-                .enqueue(new Callback<TokenList>() {
-                    @Override
-                    public void onResponse(Response<TokenList> response) {
-                        adapter.setTokens(response.body().results);
-                        progressIndicator.setVisibility(View.GONE);
-                        maybeDisplayEmptyText();
-                    }
+        client.getTokens(new PushSecureClient.RequestCallback<TokenList>() {
+            @Override
+            public void onSuccess(TokenList response) {
+                adapter.setTokens(response.results);
+                progressIndicator.setVisibility(View.GONE);
+                maybeDisplayEmptyText();
+            }
 
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        String message = "Failed to fetch tokens";
-                        Timber.e(throwable, message);
-                        Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
-                                .show();
-                    }
-                });
+            @Override
+            public void onFailure(Throwable throwable) {
+                String message = "Failed to fetch tokens";
+                Timber.e(throwable, message);
+                Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                        .show();
+            }
+        });
     }
 
     private void maybeDisplayEmptyText() {
@@ -109,22 +108,21 @@ public class TokensFragment extends Fragment implements TokenAdapter.Listener {
 
     @Override
     public void onRevokeTokenRequested(PushToken token) {
-        client.deleteToken(token.token)
-                .enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Response<Void> response) {
-                        Timber.d("Delete token http response %d", response.code());
-                        adapter.removeToken(token);
-                        maybeDisplayEmptyText();
-                    }
+        client.deleteToken(token.token, new PushSecureClient.RequestCallback<Void>() {
+            @Override
+            public void onSuccess(Void response) {
+                Timber.d("Delete token");
+                adapter.removeToken(token);
+                maybeDisplayEmptyText();
+            }
 
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        String message = "Failed to delete token";
-                        Timber.e(throwable, message);
-                        Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
-                                .show();
-                    }
-                });
+            @Override
+            public void onFailure(Throwable throwable) {
+                String message = "Failed to delete token";
+                Timber.e(throwable, message);
+                Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                        .show();
+            }
+        });
     }
 }

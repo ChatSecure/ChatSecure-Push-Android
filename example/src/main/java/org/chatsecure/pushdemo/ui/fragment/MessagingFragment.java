@@ -90,54 +90,52 @@ public class MessagingFragment extends Fragment implements View.OnClickListener 
             case R.id.sharePushTokenButton:
 
                 button.setEnabled(false);
-                client.createToken(provider.getDevice(), null)
-                        .enqueue(new Callback<PushToken>() {
-                            @Override
-                            public void onResponse(Response<PushToken> response) {
-                                button.setEnabled(true);
-                                Intent shareIntent = new Intent();
-                                shareIntent.setAction(Intent.ACTION_SEND);
-                                shareIntent.setType("text/plain");
-                                shareIntent.putExtra(Intent.EXTRA_TEXT, response.body().token);
-                                startActivity(Intent.createChooser(shareIntent, "Share Push Token"));
-                            }
+                client.createToken(provider.getDevice(), null, new PushSecureClient.RequestCallback<PushToken>() {
+                    @Override
+                    public void onSuccess(PushToken response) {
+                        button.setEnabled(true);
+                        Intent shareIntent = new Intent();
+                        shareIntent.setAction(Intent.ACTION_SEND);
+                        shareIntent.setType("text/plain");
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, response.token);
+                        startActivity(Intent.createChooser(shareIntent, "Share Push Token"));
+                    }
 
-                            @Override
-                            public void onFailure(Throwable t) {
-                                Timber.e(t, "Error fetching new token");
-                                button.setEnabled(true);
-                                Snackbar.make(container, "Error fetching new token", Snackbar.LENGTH_SHORT)
-                                        .show();
-                            }
-                        });
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Timber.e(t, "Error fetching new token");
+                        button.setEnabled(true);
+                        Snackbar.make(container, "Error fetching new token", Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
+                });
                 break;
 
             case R.id.sendMessageButton:
 
                 button.setEnabled(false);
-                client.sendMessage(peerTokenEditText.getText().toString(), payloadEditText.getText().toString())
-                        .enqueue(new Callback<Message>() {
-                            @Override
-                            public void onResponse(Response<Message> response) {
-                                button.setEnabled(true);
-                                String feedbackMessage = "Sent Message";
-                                Timber.d(feedbackMessage);
-                                Snackbar.make(container, feedbackMessage, Snackbar.LENGTH_SHORT)
-                                        .show();
-                            }
+                client.sendMessage(peerTokenEditText.getText().toString(), payloadEditText.getText().toString(), new PushSecureClient.RequestCallback<Message>() {
+                    @Override
+                    public void onSuccess(Message response) {
+                        button.setEnabled(true);
+                        String feedbackMessage = "Sent Message";
+                        Timber.d(feedbackMessage);
+                        Snackbar.make(container, feedbackMessage, Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
 
-                            @Override
-                            public void onFailure(Throwable t) {
-                                String message = "Error sending message.";
-//                                if (t instanceof RetrofitError && ((RetrofitError) throwable).getResponse().getStatus() == 404)
-//                                    message += " Push token may be invalid.";
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        String message = "Error sending message.";
+                        if (throwable instanceof PushSecureClient.RequestException && ((PushSecureClient.RequestException) throwable).getResponse().code() == 404)
+                            message += " Push token may be invalid.";
 
-                                button.setEnabled(true);
-                                Timber.e(t, message);
-                                Snackbar.make(container, message, Snackbar.LENGTH_SHORT)
-                                        .show();
-                            }
-                        });
+                        button.setEnabled(true);
+                        Timber.e(throwable, message);
+                        Snackbar.make(container, message, Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
+                });
                 break;
         }
     }

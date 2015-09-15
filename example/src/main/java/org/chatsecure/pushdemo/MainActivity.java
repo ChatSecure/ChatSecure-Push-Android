@@ -145,20 +145,19 @@ public class MainActivity extends AppCompatActivity implements RegistrationFragm
     }
 
     private void handleRevokeTokenIntent(Intent intent) {
-        client.deleteToken(intent.getStringExtra(GcmService.TOKEN_EXTRA))
-                .enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Response<Void> response) {
-                        Timber.d("Delete token http response %d", response.code());
-                        handleRevokeTokenIntentProcessed(intent);
-                    }
+        client.deleteToken(intent.getStringExtra(GcmService.TOKEN_EXTRA), new PushSecureClient.RequestCallback<Void>() {
+            @Override
+            public void onSuccess(Void response) {
+                Timber.d("Delete token!");
+                handleRevokeTokenIntentProcessed(intent);
+            }
 
-                    @Override
-                    public void onFailure(Throwable t) {
-                        Timber.e(t, "Failed to delete token");
-                        handleRevokeTokenIntentProcessed(intent);
-                    }
-                });
+            @Override
+            public void onFailure(Throwable t) {
+                Timber.e(t, "Failed to delete token");
+                handleRevokeTokenIntentProcessed(intent);
+            }
+        });
     }
 
     private void handleRevokeTokenIntentProcessed(Intent intent) {

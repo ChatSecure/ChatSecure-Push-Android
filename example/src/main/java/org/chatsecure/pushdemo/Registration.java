@@ -4,10 +4,12 @@ import android.support.annotation.NonNull;
 
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Account;
+import org.chatsecure.pushsecure.response.Device;
 
 import java.io.IOException;
 
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class Registration {
@@ -33,6 +35,7 @@ public class Registration {
         return Observable.zip(getGcmToken,
                               getOrCreateChatSecurePushAccount(dataProvider, callback).doOnNext(client::setAccount),
                               (gcmToken, authToken) -> gcmToken)
+                .observeOn(Schedulers.io())
                 .doOnNext(gcmToken -> registerDevice(gcmToken, dataProvider, client))
                 .map(gcmToken -> client);
     }
@@ -61,11 +64,17 @@ public class Registration {
     private static void registerDevice(String gcmToken, DataProvider dataProvider, PushSecureClient client) {
         if (dataProvider.getDevice() == null || !dataProvider.getDevice().registrationId.equals(gcmToken)) {
             Timber.d("Registering GCM token with ChatSecure-Push");
-            try {
-                client.createDevice(gcmToken, "whateverDevice", null).execute();
-            } catch (IOException e) {
-                Timber.e(e, "Failed to register device");
-            }
+            client.createDevice(gcmToken, "whateverDevice", null, new PushSecureClient.RequestCallback<Device>() {
+                @Override
+                public void onSuccess(Device response) {
+                    dataProvider.setDevice(response);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    Timber.e(t, "Failed to register device!");
+                }
+            });
         } else {
             Timber.d("GCM token already registered with ChatSecure-Push");
         }

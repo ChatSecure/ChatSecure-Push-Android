@@ -16,6 +16,7 @@ import org.chatsecure.pushdemo.R;
 import org.chatsecure.pushdemo.ui.adapter.DeviceAdapter;
 import org.chatsecure.pushsecure.PushSecureClient;
 import org.chatsecure.pushsecure.response.Device;
+import org.chatsecure.pushsecure.response.DeviceList;
 
 import java.io.IOException;
 
@@ -83,18 +84,21 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
 
     private void displayDevices() {
         // TODO : Combined APNS + GCM Devices call
-        Observable.defer(() -> {
-            try {
-                return Observable.just(client.getGcmDevices().execute());
-            } catch (IOException e) {
-                return Observable.error(e);
+        client.getGcmDevices(new PushSecureClient.RequestCallback<DeviceList>() {
+            @Override
+            public void onSuccess(DeviceList response) {
+                adapter.setDevices(response.results);
+                progressIndicator.setVisibility(View.GONE);
+                maybeDisplayEmptyText();
             }
-        })
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(devices -> {
-            adapter.setDevices(devices.body().results);
-            progressIndicator.setVisibility(View.GONE);
-            maybeDisplayEmptyText();
+
+            @Override
+            public void onFailure(Throwable t) {
+                String message = "Failed to fetch devices";
+                Timber.e(t, message);
+                Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                        .show();
+            }
         });
     }
 
@@ -109,24 +113,21 @@ public class DevicesFragment extends Fragment implements DeviceAdapter.Listener 
 
     @Override
     public void onRevokeDeviceRequested(Device device) {
-        Observable.defer(() -> {
-            try {
-                return Observable.just(client.deleteDevice(device.id).execute());
-            } catch (IOException e) {
-                return Observable.error(e);
+        client.deleteDevice(device.id, new PushSecureClient.RequestCallback<Void>() {
+            @Override
+            public void onSuccess(Void response) {
+                Timber.d("Delete token");
+                adapter.removeDevice(device);
+                maybeDisplayEmptyText();
             }
-        })
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(resp -> {
-                    Timber.d("Delete token http response %d", resp.code());
-                    adapter.removeDevice(device);
-                    maybeDisplayEmptyText();
-                },
-                throwable -> {
-                    String message = "Failed to delete token";
-                    Timber.e(throwable, message);
-                    Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
-                            .show();
-                });
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                String message = "Failed to delete token";
+                Timber.e(throwable, message);
+                Snackbar.make(recyclerView, message, Snackbar.LENGTH_SHORT)
+                        .show();
+            }
+        });
     }
 }

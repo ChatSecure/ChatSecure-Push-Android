@@ -28,44 +28,44 @@ import retrofit.http.Path;
  */
 interface PushSecureApi {
 
-    @POST("/accounts/")
+    @POST("accounts/")
     @FormUrlEncoded
     Call<Account> authenticateAccount(@NonNull @Field("username") String username,
                                       @NonNull @Field("password") String password,
                                       @Field("email") String email);
 
-    @POST("/device/gcm/")
+    @POST("device/gcm/")
     @FormUrlEncoded
     Call<Device> createDevice(@NonNull @Field("registration_id") String registrationId,
                               @Field("name") String name,
                               @Field("device_id") String deviceId);
 
-    @PUT("/device/gcm/{id}/")
+    @PUT("device/gcm/{id}/")
     Call<Device> updateDevice(@NonNull @Path("id") String id,
                               @Body Device device);
 
-    @DELETE("/device/gcm/{id}/")
+    @DELETE("device/gcm/{id}/")
     Call<Void> deleteDevice(@NonNull @Path("id") String id);
 
-    @POST("/tokens/")
+    @POST("tokens/")
     @FormUrlEncoded
     Call<PushToken> createToken(@NonNull @Field("gcm_device") String id,
                                 @Field("name") String name);
 
-    @GET("/tokens/")
+    @GET("tokens/")
     Call<TokenList> getTokens();
 
-    @DELETE("/tokens/{token}/")
+    @DELETE("tokens/{token}/")
     Call<Void> deleteToken(@NonNull @Path("token") String token);
 
-    @POST("/messages/")
+    @POST("messages/")
     @FormUrlEncoded
     Call<Message> sendMessage(@NonNull @Field("token") String token,
                               @Field("data") String data);
 
-    @GET("/device/gcm/")
+    @GET("device/gcm/")
     Call<DeviceList> getGcmDevices();
 
-    @GET("/device/apns/")
+    @GET("device/apns/")
     Call<DeviceList> getApnsDevices();
 }

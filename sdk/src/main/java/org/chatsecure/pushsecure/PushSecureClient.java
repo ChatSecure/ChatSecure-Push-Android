@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 
 import org.chatsecure.pushsecure.response.Account;
 import org.chatsecure.pushsecure.response.Device;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import okio.Buffer;
-import retrofit.Call;
+import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import timber.log.Timber;
@@ -34,6 +35,8 @@ public class PushSecureClient {
 
     private PushSecureApi api;
     private String token;
+
+    // <editor-fold desc="Public API">
 
     public PushSecureClient(@NonNull String apiHost) {
         this(apiHost, null);
@@ -63,9 +66,8 @@ public class PushSecureClient {
             // Perform request
             Response response = chain.proceed(request);
 
-            // Log response
-            logResponse(response);
-            Timber.d(response.toString());
+            // Log response. Consuming the Response's body requires us to re-make it for further client consumption
+            response = logResponse(response);
 
             return response;
         });
@@ -95,46 +97,56 @@ public class PushSecureClient {
      * the passed credentials. This should be passed to {@link #setAccount(Account)} before
      * performing any other operations with this client.
      */
-    public Call<Account> authenticateAccount(@NonNull String username,
-                                             @NonNull String password,
-                                             @Nullable String email) {
+    public void authenticateAccount(@NonNull String username,
+                                    @NonNull String password,
+                                    @Nullable String email,
+                                    @NonNull RequestCallback<Account> callback) {
 
-        return api.authenticateAccount(username, password, email);
+        api.authenticateAccount(username, password, email)
+                .enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<Device> createDevice(@NonNull String gcmRegistrationId,
-                                     @Nullable String name,
-                                     @Nullable String gcmDeviceId) {
+    public void createDevice(@NonNull String gcmRegistrationId,
+                             @Nullable String name,
+                             @Nullable String gcmDeviceId,
+                             @NonNull RequestCallback<Device> callback) {
 
-        return api.createDevice(gcmRegistrationId, name, gcmDeviceId);
+        api.createDevice(gcmRegistrationId, name, gcmDeviceId)
+                .enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<PushToken> createToken(@NonNull Device device, @Nullable String name) {
-        return api.createToken(name, device.id);
+    public void createToken(@NonNull Device device,
+                            @Nullable String name,
+                            @NonNull RequestCallback<PushToken> callback) {
+
+        api.createToken(device.id, name).enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<Void> deleteToken(@NonNull String token) {
-        return api.deleteToken(token);
+    public void deleteToken(@NonNull String token, @NonNull RequestCallback<Void> callback) {
+
+        api.deleteToken(token).enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<TokenList> getTokens() {
-        return api.getTokens();
+    public void getTokens(@NonNull RequestCallback<TokenList> callback) {
+
+        api.getTokens().enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<Message> sendMessage(@NonNull String recipientToken,
-                                     @Nullable String data) {
+    public void sendMessage(@NonNull String recipientToken,
+                            @Nullable String data,
+                            @NonNull RequestCallback<Message> callback) {
 
-        return api.sendMessage(recipientToken, data);
+        api.sendMessage(recipientToken, data).enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<DeviceList> getGcmDevices() {
+    public void getGcmDevices(@NonNull RequestCallback<DeviceList> callback) {
 
-        return api.getGcmDevices();
+        api.getGcmDevices().enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<DeviceList> getApnsDevices() {
+    public void getApnsDevices(@NonNull RequestCallback<DeviceList> callback) {
 
-        return api.getApnsDevices();
+        api.getApnsDevices().enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
 //    public Observable<List<Device>> getAllDevices() {
@@ -152,13 +164,17 @@ public class PushSecureClient {
      * Update properties of the current device. Note that changes to {@link Device#id} will
      * not be respected
      */
-    public Call<Device> updateDevice(@NonNull Device device) {
-        return api.updateDevice(device.id, device);
+    public void updateDevice(@NonNull Device device, @NonNull RequestCallback<Device> callback) {
+
+        api.updateDevice(device.id, device).enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
-    public Call<Void> deleteDevice(@NonNull String id) {
-        return api.deleteDevice(id);
+    public void deleteDevice(@NonNull String id, @NonNull RequestCallback<Void> callback) {
+
+        api.deleteDevice(id).enqueue(new RetrofitCallbackBridge<>(callback));
     }
+
+    // </editor-fold desc="Public API">
 
     private void logRequest(Request request) {
         StringBuilder builder = new StringBuilder();
@@ -168,19 +184,23 @@ public class PushSecureClient {
                 .append("\n")
                 .append(request.headers().toString());
 
-        try {
-            final Request copy = request.newBuilder().build();
-            final Buffer buffer = new Buffer();
-            copy.body().writeTo(buffer);
-            builder.append(buffer.readUtf8());
-        } catch (final IOException e) {
-            Timber.e(e, "Failed to log request body");
+        if (request.body() != null) {
+            try {
+                final Request copy = request.newBuilder().build();
+                final Buffer buffer = new Buffer();
+                copy.body().writeTo(buffer);
+                builder.append(buffer.readUtf8());
+            } catch (final IOException e) {
+                Timber.e(e, "Failed to log request body");
+            }
         }
 
         Timber.d("Request -> " + builder.toString());
     }
 
-    private void logResponse(Response response) {
+    private
+    @Nullable
+    Response logResponse(Response response) {
         StringBuilder builder = new StringBuilder();
         builder.append(response.code())
                 .append(" ")
@@ -188,14 +208,78 @@ public class PushSecureClient {
                 .append("\n")
                 .append(response.headers().toString())
                 .append("\n");
-        try {
-            final Response copy = response.newBuilder().build();
-            builder.append(copy.body().string());
-            copy.body().close();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if (response.body() != null) {
+            try {
+                final Response copy = response.newBuilder().build();
+                String responseBodyString = copy.body().string();
+                builder.append(responseBodyString);
+                copy.body().close();
+                Response newResponse = response.newBuilder().body(ResponseBody.create(copy.body().contentType(), responseBodyString.getBytes())).build();
+                Timber.d("Response <- " + builder.toString());
+                return newResponse;
+            } catch (IOException e) {
+                Timber.e(e, "Failed to read response body");
+            }
+        }
+        return response;
+    }
+
+    /**
+     * A bridging callback that eliminates some of the boilerplate from
+     * {@link Callback}
+     */
+    private class RetrofitCallbackBridge<T> implements Callback<T> {
+
+        private RequestCallback<T> callback;
+
+        RetrofitCallbackBridge(RequestCallback<T> callback) {
+            this.callback = callback;
         }
 
-        Timber.d("Response <- " + builder.toString());
+        @Override
+        public void onResponse(retrofit.Response<T> response) {
+            if (200 <= response.code() && response.code() < 300) {
+                callback.onSuccess(response.body());
+            } else {
+                // TODO : Find out what these look like
+                try {
+                    if (response.errorBody().contentLength() > 0) {
+                        callback.onFailure(new RequestException(response.raw(), response.errorBody().string()));
+                    } else {
+                        callback.onFailure(new RequestException(response.raw(), "A server error ocurred"));
+                    }
+                } catch (IOException e) {
+                    Timber.e(e, "Failed to report error response reason");
+                    callback.onFailure(new RequestException(response.raw(), "A server error ocurred"));
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            callback.onFailure(t);
+        }
+    }
+
+    public interface RequestCallback<T> {
+
+        void onSuccess(T response);
+
+        void onFailure(Throwable t);
+    }
+
+    public class RequestException extends Throwable {
+
+        private Response response;
+
+        public RequestException(Response response, String detailMessage) {
+            super(detailMessage);
+            this.response = response;
+        }
+
+        public Response getResponse() {
+            return response;
+        }
     }
 }

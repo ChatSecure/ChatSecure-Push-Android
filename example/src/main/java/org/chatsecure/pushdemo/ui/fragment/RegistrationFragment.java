@@ -138,22 +138,21 @@ public class RegistrationFragment extends Fragment implements View.OnClickListen
 
         if (client == null) throw new IllegalStateException("PushSecureClient not set!");
 
-        client.authenticateAccount(username, password, null)
-                .enqueue(new Callback<Account>() {
-                    @Override
-                    public void onResponse(Response<Account> response) {
-                        mListener.onAccountCreated(response.body());
-                    }
+        client.authenticateAccount(username, password, null, new PushSecureClient.RequestCallback<Account>() {
+            @Override
+            public void onSuccess(Account response) {
+                mListener.onAccountCreated(response);
+            }
 
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        Timber.e(throwable, getActivity().getString(R.string.failed_to_create_account));
-                        setEntryViewsEnabled(true);
-                        signupButton.setText(R.string.create_account);
-                        Snackbar.make(container, R.string.failed_to_create_account, Snackbar.LENGTH_LONG)
-                                .show();
-                    }
-                });
+            @Override
+            public void onFailure(Throwable throwable) {
+                Timber.e(throwable, getActivity().getString(R.string.failed_to_create_account));
+                setEntryViewsEnabled(true);
+                signupButton.setText(R.string.create_account);
+                Snackbar.make(container, R.string.failed_to_create_account, Snackbar.LENGTH_LONG)
+                        .show();
+            }
+        });
     }
 
     private boolean checkUserPasswordEntry(boolean showError) {
