@@ -14,7 +14,7 @@ This Android demo requires a **ChatSecure Push Server** and a **Google Cloud Mes
 
 3. Copy the GCM `Server API Key` to `./push/push/local_settings.py` in the ChatSecure Push Server Django project. Copy `google-services.json` to this project's `./example` directory.
 
-# Using the SDK
+## Using the SDK
 
 Currently, you must include ChatSecure Push as a submodule. Releases will be published as Maven artifacts.
 
@@ -23,8 +23,8 @@ Currently, you must include ChatSecure Push as a submodule. Releases will be pub
 Add this repository as a git submodule:
 
 ```
-cd your/project/root
-git submodule add https://github.com/ChatSecure/ChatSecure-Push-Android.git ./submodules/chatsecure-push/
+$ cd your/project/root
+$ git submodule add https://github.com/ChatSecure/ChatSecure-Push-Android.git ./submodules/chatsecure-push/
 ```
 
 Edit your project's root `settings.gradle`. This makes the PushSecure submodule's gradle module available to any other gradle modules within your project.
