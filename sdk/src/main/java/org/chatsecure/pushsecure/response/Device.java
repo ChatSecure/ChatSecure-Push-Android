@@ -22,6 +22,12 @@ public class Device {
     // Non API fields (Not present on-the-wire, but populated by api client)
     public final @Nullable Type type;
 
+    public static Device withUpdatedRegistrationId(@NonNull Device device,
+                                                         @NonNull String newRegistrationId) {
+
+        return new Device(device.name, newRegistrationId, device.deviceId, device.id, true, device.dateCreated);
+    }
+
     public Device(@NonNull Device device,
                   @NonNull Type type) {
 

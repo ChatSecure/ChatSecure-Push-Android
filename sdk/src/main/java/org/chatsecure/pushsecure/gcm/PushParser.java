@@ -26,10 +26,16 @@ public class PushParser {
         try {
             String message = data.getString("message");
             JsonObject payload = gson.fromJson(message, JsonObject.class);
+
+            if (payload == null || !payload.has("message")) return null;
             payload = payload.get("message").getAsJsonObject();
+
+            if (!payload.has("token")) return null;
             String token = payload.get("token").getAsString();
-            String pushPayload = payload.get("data").getAsString();
-            Timber.d("Got push " + payload.get("data").getAsString());
+
+            String pushPayload = (payload.has("data") && !payload.get("data").isJsonNull()) ?
+                    payload.get("data").getAsString() : "";
+            Timber.d("Got push from token %s with payload %s", token, pushPayload);
             return new PushMessage(token, pushPayload);
         } catch (UnsupportedOperationException e) {
             return null;

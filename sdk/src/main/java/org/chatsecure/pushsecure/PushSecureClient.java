@@ -267,9 +267,9 @@ public class PushSecureClient {
 
     public interface RequestCallback<T> {
 
-        void onSuccess(T response);
+        void onSuccess(@NonNull T response);
 
-        void onFailure(Throwable t);
+        void onFailure(@NonNull Throwable t);
     }
 
     public class RequestException extends Throwable {

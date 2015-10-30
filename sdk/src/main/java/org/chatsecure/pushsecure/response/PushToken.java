@@ -8,23 +8,20 @@ import android.support.annotation.Nullable;
  */
 public class PushToken {
 
-    public final @Nullable String url;
     public final @Nullable String name;
     public final @NonNull String token;
     public final @Nullable String apnsDevice;
     public final @Nullable String gcmDevice;
 
     public PushToken(@NonNull String token) {
-        this(null, null, token, null, null);
+        this(token, null, null, null);
     }
 
-    public PushToken(@Nullable String url,
+    public PushToken(@NonNull String token,
                      @Nullable String name,
-                     @NonNull String token,
                      @Nullable String apnsDevice,
                      @Nullable String gcmDevice) {
 
-        this.url = url;
         this.name = name;
         this.token = token;
         this.apnsDevice = apnsDevice;
