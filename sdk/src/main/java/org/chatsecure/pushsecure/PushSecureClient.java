@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -47,29 +48,31 @@ public class PushSecureClient {
         if (account != null) token = account.token;
 
         OkHttpClient client = new OkHttpClient();
-        client.interceptors().add(chain -> {
+        client.interceptors().add(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request;
 
-            Request request = null;
+                if (token == null) {
+                    request = chain.request();
+                } else {
+                    // If a ChatSecure-Push auth token has been set, attach that to each request
+                    request = chain.request()
+                            .newBuilder()
+                            .addHeader("Authorization", "Token " + token)
+                            .build();
+                }
 
-            if (token == null) {
-                request = chain.request();
-            } else {
-                // If a ChatSecure-Push auth token has been set, attach that to each request
-                request = chain.request()
-                        .newBuilder()
-                        .addHeader("Authorization", "Token " + token)
-                        .build();
+                logRequest(request);
+
+                // Perform request
+                Response response = chain.proceed(request);
+
+                // Log response. Consuming the Response's body requires us to re-make it for further client consumption
+                response = logResponse(response);
+
+                return response;
             }
-
-            logRequest(request);
-
-            // Perform request
-            Response response = chain.proceed(request);
-
-            // Log response. Consuming the Response's body requires us to re-make it for further client consumption
-            response = logResponse(response);
-
-            return response;
         });
 
         Gson gson = new GsonBuilder()
