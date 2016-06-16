@@ -137,8 +137,52 @@ public class PushSecureClient {
 
     public void sendMessage(@NonNull String recipientToken,
                             @Nullable String data,
+                            @NonNull String providerUrl,
                             @NonNull RequestCallback<Message> callback) {
 
+        OkHttpClient client = new OkHttpClient();
+        client.interceptors().add(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request;
+
+                if (token == null) {
+                    request = chain.request();
+                } else {
+                    // If a ChatSecure-Push auth token has been set, attach that to each request
+                    request = chain.request()
+                            .newBuilder()
+                            .addHeader("Authorization", "Token " + token)
+                            .build();
+                }
+
+                logRequest(request);
+
+                // Perform request
+                Response response = chain.proceed(request);
+
+                // Log response. Consuming the Response's body requires us to re-make it for further client consumption
+                response = logResponse(response);
+
+                return response;
+            }
+        });
+
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .registerTypeAdapter(Date.class, new org.chatsecure.pushsecure.response.typeadapter.DjangoDateTypeAdapter())
+                .create();
+
+        if (providerUrl.endsWith("/messages/"))
+            providerUrl = providerUrl.replace("/messages/","/");
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(providerUrl)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        PushSecureApi api = retrofit.create(PushSecureApi.class);
         api.sendMessage(recipientToken, data).enqueue(new RetrofitCallbackBridge<>(callback));
     }
 
@@ -198,7 +242,7 @@ public class PushSecureClient {
             }
         }
 
-        Timber.d("Request -> " + builder.toString());
+        //Timber.d("Request -> " + builder.toString());
     }
 
     private
@@ -219,7 +263,7 @@ public class PushSecureClient {
                 builder.append(responseBodyString);
                 copy.body().close();
                 Response newResponse = response.newBuilder().body(ResponseBody.create(copy.body().contentType(), responseBodyString.getBytes())).build();
-                Timber.d("Response <- " + builder.toString());
+               // Timber.d("Response <- " + builder.toString());
                 return newResponse;
             } catch (IOException e) {
                 Timber.e(e, "Failed to read response body");
