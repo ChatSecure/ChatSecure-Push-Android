@@ -242,7 +242,7 @@ public class PushSecureClient {
             }
         }
 
-        Timber.d("Request -> " + builder.toString());
+        //Timber.d("Request -> " + builder.toString());
     }
 
     private
@@ -263,7 +263,7 @@ public class PushSecureClient {
                 builder.append(responseBodyString);
                 copy.body().close();
                 Response newResponse = response.newBuilder().body(ResponseBody.create(copy.body().contentType(), responseBodyString.getBytes())).build();
-                Timber.d("Response <- " + builder.toString());
+               // Timber.d("Response <- " + builder.toString());
                 return newResponse;
             } catch (IOException e) {
                 Timber.e(e, "Failed to read response body");
